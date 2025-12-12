@@ -1207,6 +1207,14 @@ elif page == "⚙️ Génération Fichiers":
                         df_export_bt = df_template_bt.copy()
                         
                         nb_maj = 0
+                        identifiants_non_trouves = []
+                        
+                        # DÉBOGAGE : Afficher quelques exemples d'IDENTIFIANT
+                        st.info(f"""
+                        🔍 **Exemples d'IDENTIFIANT** :
+                        - Template (5 premiers) : {df_export_bt['IDENTIFIANT'].head(5).tolist()}
+                        - Base centrale filtrée (5 premiers) : {df_central_filtre['IDENTIFIANT'].head(5).tolist()}
+                        """)
                         
                         # Pour chaque ligne du template
                         for idx, row_template in df_export_bt.iterrows():
@@ -1228,6 +1236,15 @@ elif page == "⚙️ Génération Fichiers":
                                     df_export_bt.at[idx, 'LIBELLE COMPLEMENTAIRE'] = f"CIE BT {periode_selectionnee} {site}"
                                     
                                     nb_maj += 1
+                            else:
+                                # Collecter les identifiants non trouvés
+                                identifiants_non_trouves.append(identifiant_template)
+                        
+                        # Afficher les identifiants non trouvés
+                        if identifiants_non_trouves:
+                            st.warning(f"⚠️ **{len(identifiants_non_trouves)} IDENTIFIANT(s) du template non trouvés dans la base centrale filtrée**")
+                            with st.expander("👁️ Voir les IDENTIFIANT non trouvés"):
+                                st.write(identifiants_non_trouves[:20])  # Afficher les 20 premiers
                         
                         # Afficher les statistiques
                         col_stat1, col_stat2, col_stat3 = st.columns(3)
@@ -1335,6 +1352,14 @@ elif page == "⚙️ Génération Fichiers":
                         df_export_ht = df_template_ht.copy()
                         
                         nb_maj = 0
+                        identifiants_non_trouves = []
+                        
+                        # DÉBOGAGE : Afficher quelques exemples d'IDENTIFIANT
+                        st.info(f"""
+                        🔍 **Exemples d'IDENTIFIANT** :
+                        - Template (5 premiers) : {df_export_ht['IDENTIFIANT'].head(5).tolist()}
+                        - Base centrale filtrée (5 premiers) : {df_central_filtre['IDENTIFIANT'].head(5).tolist()}
+                        """)
                         
                         # Pour chaque ligne du template
                         for idx, row_template in df_export_ht.iterrows():
@@ -1356,6 +1381,15 @@ elif page == "⚙️ Génération Fichiers":
                                     df_export_ht.at[idx, 'LIBELLE COMPLEMENTAIRE'] = f"CIE HT {periode_selectionnee} {site}"
                                     
                                     nb_maj += 1
+                            else:
+                                # Collecter les identifiants non trouvés
+                                identifiants_non_trouves.append(identifiant_template)
+                        
+                        # Afficher les identifiants non trouvés
+                        if identifiants_non_trouves:
+                            st.warning(f"⚠️ **{len(identifiants_non_trouves)} IDENTIFIANT(s) du template non trouvés dans la base centrale filtrée**")
+                            with st.expander("👁️ Voir les IDENTIFIANT non trouvés"):
+                                st.write(identifiants_non_trouves[:20])  # Afficher les 20 premiers
                         
                         # Afficher les statistiques
                         col_stat1, col_stat2, col_stat3 = st.columns(3)
