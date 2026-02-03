@@ -157,61 +157,111 @@ def importer_factures_ht(df_ht, df_base_centrale, periode, has_typefact):
         stats_typefact['E5']['count'] = len(df_e5)
         stats_typefact['Autre']['count'] = len(df_autres)
         
-        # Combiner tous les types
-        df_traite = pd.concat([df_e0_cumul, df_e1, df_e5, df_autres], ignore_index=True)
+        # ✨ MODIFICATION : Exclure E1 de l'import automatique
+        # E1 (complémentaires) doivent être importées MANUELLEMENT
+        # pour avoir le contrôle sur DATE_COMPLEMENTAIRE
+        df_traite = pd.concat([df_e0_cumul, df_e5, df_autres], ignore_index=True)
+        
+        # Stocker E1 pour affichage dans "Non Enregistrées"
+        st.session_state.df_e1_a_traiter = df_e1.copy() if len(df_e1) > 0 else pd.DataFrame()
     else:
         # Pas de colonne typefact
         df_traite = df_ht.copy()
         df_e1 = pd.DataFrame()
         df_e5 = pd.DataFrame()
     
-    # Créer les nouvelles lignes
+    # Créer les nouvelles lignes ou mettre à jour existantes
     nouvelles_lignes = []
     non_trouves = []
     
     for _, row_facture in df_traite.iterrows():
         identifiant = normaliser_identifiant(row_facture[CONFIG_HT['cle_facture']])
         
-        # Chercher dans la base centrale
-        ligne_base = df_base_centrale[df_base_centrale['IDENTIFIANT'] == identifiant]
+        # Déterminer le type de facture depuis la ligne traitée
+        type_facture_original = ''
+        if 'typefact' in row_facture.index:
+            type_facture_original = str(row_facture['typefact']).upper()
         
-        if not ligne_base.empty:
-            site_info = ligne_base.iloc[0]
-            
-            # Déterminer si c'est une facture complémentaire (E1)
-            is_e1 = False
-            if has_typefact and not df_e1.empty:
-                is_e1 = identifiant in df_e1[CONFIG_HT['cle_facture']].apply(normaliser_identifiant).values
-            
-            # Déterminer si c'est un avoir (E5)
-            is_e5 = False
-            if has_typefact and not df_e5.empty:
-                is_e5 = identifiant in df_e5[CONFIG_HT['cle_facture']].apply(normaliser_identifiant).values
-            
-            # Récupérer le montant
-            montant = row_facture.get(CONFIG_HT['montant_col'], 0)
-            
-            # Si avoir (E5), montant négatif
-            if is_e5:
-                montant = -abs(montant)
-            
-            # Créer nouvelle ligne
-            nouvelle_ligne = {
-                'UC': site_info.get('UC', ''),
-                'CODE RED': site_info.get('CODE RED', ''),
-                'CODE AGCE': site_info.get('CODE AGCE', ''),
-                'SITES': site_info.get('SITES', ''),
-                'IDENTIFIANT': identifiant,
-                'TENSION': 'HAUTE',
-                'DATE': periode,
-                'CONSO': row_facture.get(CONFIG_HT['conso_col'], 0) if CONFIG_HT['conso_col'] in df_traite.columns else 0,
-                'MONTANT': montant,
-                'DATE_COMPLEMENTAIRE': periode if is_e1 else ''  # Remplir si E1
-            }
-            
-            nouvelles_lignes.append(nouvelle_ligne)
+        # Déterminer si c'est une facture complémentaire (E1)
+        is_e1 = False
+        if has_typefact and not df_e1.empty:
+            is_e1 = identifiant in df_e1[CONFIG_HT['cle_facture']].apply(normaliser_identifiant).values
+        
+        # Déterminer si c'est un avoir (E5)
+        is_e5 = (type_facture_original == 'E5')
+        
+        # Récupérer le montant
+        montant = row_facture.get(CONFIG_HT['montant_col'], 0)
+        
+        # Convertir en numérique
+        montant = pd.to_numeric(montant, errors='coerce') or 0
+        
+        # Si avoir (E5), montant négatif
+        if is_e5:
+            montant = -abs(montant)
+        
+        # ========================================
+        # CORRECTION : Chercher ligne existante avec TYPE
+        # Pour permettre E0 ET E5 pour même IDENTIFIANT
+        # ========================================
+        
+        # Si E5, chercher ligne E5 existante (pas E0)
+        # Si E0, chercher ligne E0 existante (pas E5)
+        if is_e5:
+            # Pour E5 : chercher ligne avec montant négatif (E5 existant)
+            ligne_existante = df_base_centrale[
+                (df_base_centrale['IDENTIFIANT'] == identifiant) & 
+                (df_base_centrale['DATE'] == periode) &
+                (df_base_centrale['MONTANT'] < 0)  # E5 = montant négatif
+            ]
         else:
-            non_trouves.append(identifiant)
+            # Pour E0 : chercher ligne avec montant positif (E0 existant)
+            ligne_existante = df_base_centrale[
+                (df_base_centrale['IDENTIFIANT'] == identifiant) & 
+                (df_base_centrale['DATE'] == periode) &
+                (df_base_centrale['MONTANT'] >= 0)  # E0/E1 = montant positif
+            ]
+        
+        if not ligne_existante.empty:
+            # ✅ Ligne existe déjà pour cette période ET ce type
+            # → METTRE À JOUR
+            
+            idx = ligne_existante.index[0]
+            conso_val = row_facture.get(CONFIG_HT['conso_col'], 0) if CONFIG_HT['conso_col'] in df_traite.columns else 0
+            
+            df_base_centrale.loc[idx, 'CONSO'] = pd.to_numeric(conso_val, errors='coerce') or 0
+            df_base_centrale.loc[idx, 'MONTANT'] = montant
+            df_base_centrale.loc[idx, 'DATE_COMPLEMENTAIRE'] = periode if is_e1 else ''
+            # Garder les autres colonnes telles quelles
+            
+        else:
+            # Ligne n'existe pas pour cette période
+            # Chercher infos du site (n'importe quelle période)
+            ligne_base = df_base_centrale[df_base_centrale['IDENTIFIANT'] == identifiant]
+            
+            if not ligne_base.empty:
+                site_info = ligne_base.iloc[0]
+                
+                # Créer nouvelle ligne pour cette période
+                conso_val = row_facture.get(CONFIG_HT['conso_col'], 0) if CONFIG_HT['conso_col'] in df_traite.columns else 0
+                
+                nouvelle_ligne = {
+                    'UC': site_info.get('UC', ''),
+                    'CODE RED': site_info.get('CODE RED', ''),
+                    'CODE AGCE': site_info.get('CODE AGCE', ''),
+                    'SITES': site_info.get('SITES', ''),
+                    'IDENTIFIANT': identifiant,
+                    'TENSION': 'HAUTE',
+                    'DATE': periode,
+                    'CONSO': pd.to_numeric(conso_val, errors='coerce') or 0,
+                    'MONTANT': montant,
+                    'DATE_COMPLEMENTAIRE': periode if is_e1 else '',
+                    'STATUT': site_info.get('STATUT', 'ACTIF')  # Préserver le statut existant
+                }
+                
+                nouvelles_lignes.append(nouvelle_ligne)
+            else:
+                non_trouves.append(identifiant)
     
     # Ajouter à la base centrale
     if nouvelles_lignes:
@@ -313,6 +363,11 @@ def page_import_ht():
                             st.session_state.df_central = df_updated
                             save_central(df_updated)
                             
+                            # Stocker les données HT pour la vue "Non Enregistrées"
+                            st.session_state.df_factures_ht_dernier = df_ht.copy()
+                            st.session_state.periode_ht_dernier = periode
+                            st.session_state.has_typefact_ht = has_typefact
+                            
                             # Résultats
                             st.markdown("---")
                             st.success(f"🎉 Import HT terminé : {nb_ajoutes} ligne(s) ajoutée(s) !")
@@ -336,7 +391,10 @@ def page_import_ht():
                                     st.metric("E0 (Normal)", f"{e0_count} → {e0_cumul}")
                                 
                                 with col_s2:
-                                    st.metric("E1 (Complém.)", stats['E1']['count'])
+                                    e1_count = stats['E1']['count']
+                                    st.metric("E1 (Complém.)", e1_count)
+                                    if e1_count > 0:
+                                        st.caption("⚠️ À importer manuellement")
                                 
                                 with col_s3:
                                     st.metric("E5 (Avoir)", stats['E5']['count'])
@@ -351,5 +409,18 @@ def page_import_ht():
                                 st.warning(f"⚠️ {len(non_trouves)} identifiant(s) non trouvé(s) dans la base centrale")
                                 with st.expander("👁️ Voir les identifiants non trouvés"):
                                     st.write(non_trouves[:50])
+                            
+                            # Message E1
+                            if has_typefact and stats['E1']['count'] > 0:
+                                st.info(f"""
+                                📋 **{stats['E1']['count']} facture(s) complémentaire(s) (E1) détectée(s)**
+                                
+                                Les factures E1 ne sont **pas importées automatiquement** pour vous permettre :
+                                - De vérifier les montants
+                                - De contrôler les dates complémentaires
+                                - De les ajouter manuellement si nécessaire
+                                
+                                ➡️ Allez dans **"📋 Non Enregistrées"** pour voir et importer manuellement les E1.
+                                """)
                             
                             st.balloons()
