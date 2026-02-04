@@ -71,8 +71,10 @@ def importer_factures_bt(df_bt, df_base_centrale, periode):
     """
     Importe les factures BT dans la base centrale
     
-    Pour BT : Pas de factures complémentaires
+    Pour BT : Cumul automatique si plusieurs factures même IDENTIFIANT
     → DATE_COMPLEMENTAIRE reste vide
+    
+    IMPORTANT: Préserve les modifications manuelles de la base centrale
     
     Args:
         df_bt: DataFrame des factures BT
@@ -85,38 +87,87 @@ def importer_factures_bt(df_bt, df_base_centrale, periode):
         nb_doublons: Nombre de doublons supprimés
         non_trouves: Liste des identifiants non trouvés
     """
+    # ============================================
+    # ÉTAPE 1 : CUMUL si plusieurs factures même IDENTIFIANT
+    # ============================================
+    
+    # Grouper par IDENTIFIANT et cumuler
+    df_bt_cumul = df_bt.groupby(CONFIG_BT['cle_facture'], as_index=False).agg({
+        CONFIG_BT['montant_col']: 'sum',
+        CONFIG_BT['conso_col']: 'sum',
+        CONFIG_BT['periode_col']: 'first'
+    })
+    
+    # Statistiques cumul
+    nb_factures_initiales = len(df_bt)
+    nb_factures_apres_cumul = len(df_bt_cumul)
+    nb_cumul = nb_factures_initiales - nb_factures_apres_cumul
+    
+    # ============================================
+    # ÉTAPE 2 : IMPORT dans base centrale
+    # ============================================
+    
     nouvelles_lignes = []
     non_trouves = []
     
-    for _, row_facture in df_bt.iterrows():
+    for _, row_facture in df_bt_cumul.iterrows():
         identifiant = normaliser_identifiant(row_facture[CONFIG_BT['cle_facture']])
         
-        # Chercher dans la base centrale (sans filtre sur DATE pour récupérer les infos du site)
-        ligne_base = df_base_centrale[df_base_centrale['IDENTIFIANT'] == identifiant]
+        # Chercher dans la base centrale (même IDENTIFIANT + même DATE)
+        ligne_existante = df_base_centrale[
+            (df_base_centrale['IDENTIFIANT'] == identifiant) & 
+            (df_base_centrale['DATE'] == periode)
+        ]
         
-        if not ligne_base.empty:
-            # Prendre les infos du site depuis la première occurrence
-            site_info = ligne_base.iloc[0]
+        if not ligne_existante.empty:
+            # ✅ Ligne existe déjà pour cette période
+            # → METTRE À JOUR au lieu de créer une nouvelle
+            # → Préserve UC, CODE RED, CODE AGCE, SITES (modifs manuelles)
+            # → Met à jour CONSO et MONTANT uniquement
             
-            # Créer une nouvelle ligne
-            nouvelle_ligne = {
-                'UC': site_info.get('UC', ''),
-                'CODE RED': site_info.get('CODE RED', ''),
-                'CODE AGCE': site_info.get('CODE AGCE', ''),
-                'SITES': site_info.get('SITES', ''),
-                'IDENTIFIANT': identifiant,
-                'TENSION': 'BASSE',
-                'DATE': periode,
-                'CONSO': row_facture.get(CONFIG_BT['conso_col'], 0) if CONFIG_BT['conso_col'] in df_bt.columns else 0,
-                'MONTANT': row_facture.get(CONFIG_BT['montant_col'], 0),
-                'DATE_COMPLEMENTAIRE': ''  # Toujours vide pour BT
-            }
+            idx = ligne_existante.index[0]
+            conso_val = row_facture.get(CONFIG_BT['conso_col'], 0) if CONFIG_BT['conso_col'] in df_bt_cumul.columns else 0
+            montant_val = row_facture.get(CONFIG_BT['montant_col'], 0)
             
-            nouvelles_lignes.append(nouvelle_ligne)
+            # Convertir en numérique
+            df_base_centrale.loc[idx, 'CONSO'] = pd.to_numeric(conso_val, errors='coerce') or 0
+            df_base_centrale.loc[idx, 'MONTANT'] = pd.to_numeric(montant_val, errors='coerce') or 0
+            # Garder les autres colonnes (UC, CODE, etc.) telles quelles
+            
         else:
-            non_trouves.append(identifiant)
+            # Ligne n'existe pas pour cette période
+            # Chercher infos du site (n'importe quelle période)
+            ligne_base = df_base_centrale[df_base_centrale['IDENTIFIANT'] == identifiant]
+            
+            if not ligne_base.empty:
+                # Prendre les infos du site depuis la première occurrence
+                site_info = ligne_base.iloc[0]
+                
+                # Créer une nouvelle ligne pour cette période
+                conso_val = row_facture.get(CONFIG_BT['conso_col'], 0) if CONFIG_BT['conso_col'] in df_bt_cumul.columns else 0
+                montant_val = row_facture.get(CONFIG_BT['montant_col'], 0)
+                
+                nouvelle_ligne = {
+                    'UC': site_info.get('UC', ''),
+                    'CODE RED': site_info.get('CODE RED', ''),
+                    'CODE AGCE': site_info.get('CODE AGCE', ''),
+                    'SITES': site_info.get('SITES', ''),
+                    'IDENTIFIANT': identifiant,
+                    'TENSION': 'BASSE',
+                    'DATE': periode,
+                    'CONSO': pd.to_numeric(conso_val, errors='coerce') or 0,
+                    'MONTANT': pd.to_numeric(montant_val, errors='coerce') or 0,
+                    'DATE_COMPLEMENTAIRE': '',
+                    'STATUT': site_info.get('STATUT', 'ACTIF'),  # Préserver le statut existant
+                    'PSABON': 0,  # BT n'a pas de puissance
+                    'PSATTEINTE': 0
+                }
+                
+                nouvelles_lignes.append(nouvelle_ligne)
+            else:
+                non_trouves.append(identifiant)
     
-    # Ajouter à la base centrale
+    # Ajouter à la base centrale uniquement les nouvelles lignes
     if nouvelles_lignes:
         df_updated, nb_ajoutes, nb_doublons = ajouter_lignes_base_centrale(
             df_base_centrale, 
@@ -128,7 +179,7 @@ def importer_factures_bt(df_bt, df_base_centrale, periode):
         nb_ajoutes = 0
         nb_doublons = 0
     
-    return df_updated, nb_ajoutes, nb_doublons, non_trouves
+    return df_updated, nb_ajoutes, nb_doublons, non_trouves, nb_cumul
 
 
 def page_import_bt():
@@ -198,7 +249,7 @@ def page_import_bt():
                             df_base = st.session_state.df_central
                             
                             # Import
-                            df_updated, nb_ajoutes, nb_doublons, non_trouves = importer_factures_bt(
+                            df_updated, nb_ajoutes, nb_doublons, non_trouves, nb_cumul = importer_factures_bt(
                                 df_bt, df_base, periode
                             )
                             
@@ -206,17 +257,31 @@ def page_import_bt():
                             st.session_state.df_central = df_updated
                             save_central(df_updated)
                             
+                            # Stocker les données BT pour la vue "Non Enregistrées"
+                            st.session_state.df_factures_bt_dernier = df_bt.copy()
+                            st.session_state.periode_bt_dernier = periode
+                            
                             # Résultats
                             st.markdown("---")
                             st.success(f"🎉 Import BT terminé : {nb_ajoutes} ligne(s) ajoutée(s) !")
                             
-                            col_r1, col_r2, col_r3 = st.columns(3)
+                            col_r1, col_r2, col_r3, col_r4 = st.columns(4)
                             with col_r1:
                                 st.metric("✅ Lignes ajoutées", nb_ajoutes)
                             with col_r2:
                                 st.metric("📊 Total base centrale", len(df_updated))
                             with col_r3:
                                 st.metric("📅 Période", periode)
+                            with col_r4:
+                                st.metric("🔄 Factures cumulées", nb_cumul)
+                            
+                            # Info cumul
+                            if nb_cumul > 0:
+                                st.info(f"""
+                                📋 **{nb_cumul} facture(s) avec même IDENTIFIANT ont été cumulées automatiquement**
+                                
+                                {len(df_bt)} factures → {len(df_bt) - nb_cumul} lignes (après cumul)
+                                """)
                             
                             if nb_doublons > 0:
                                 st.info(f"ℹ️ {nb_doublons} doublon(s) détecté(s) et ignoré(s)")
