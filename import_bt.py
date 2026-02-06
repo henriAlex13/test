@@ -160,7 +160,8 @@ def importer_factures_bt(df_bt, df_base_centrale, periode):
                     'DATE_COMPLEMENTAIRE': '',
                     'STATUT': site_info.get('STATUT', 'ACTIF'),  # Préserver le statut existant
                     'PSABON': 0,  # BT n'a pas de puissance
-                    'PSATTEINTE': 0
+                    'PSATTEINTE': 0,
+                    'COMPTE_CHARGE': site_info.get('COMPTE_CHARGE', '62183464')  # Préserver ou défaut
                 }
                 
                 nouvelles_lignes.append(nouvelle_ligne)
