@@ -16,7 +16,9 @@ CONFIG_HT = {
     'montant_col': 'montfact',
     'conso_col': 'conso',
     'periode_col': 'Periode_Emission_Bordereau',
-    'typefact_col': 'typefact'
+    'typefact_col': 'typefact',
+    'psabon_col': 'PSABON',
+    'psatteinte_col': 'PSATTEINTE'
 }
 
 
@@ -73,7 +75,7 @@ def traiter_fichier_ht(fichier_ht):
         return None, None, False, erreurs
 
 
-def traiter_factures_e0(df_ht_e0, cle_facture, montant_col, conso_col, periode_col):
+def traiter_factures_e0(df_ht_e0, cle_facture, montant_col, conso_col, periode_col, psabon_col, psatteinte_col):
     """
     Traite les factures E0 (émission normale - factures multiples)
     → Cumule les montants par IDENTIFIANT
@@ -84,6 +86,8 @@ def traiter_factures_e0(df_ht_e0, cle_facture, montant_col, conso_col, periode_c
         montant_col: Nom colonne montant
         conso_col: Nom colonne conso
         periode_col: Nom colonne période
+        psabon_col: Nom colonne puissance souscrite
+        psatteinte_col: Nom colonne puissance atteinte
     
     Returns:
         DataFrame cumulé
@@ -91,12 +95,21 @@ def traiter_factures_e0(df_ht_e0, cle_facture, montant_col, conso_col, periode_c
     if len(df_ht_e0) == 0:
         return pd.DataFrame()
     
-    # Grouper et cumuler
-    df_cumul = df_ht_e0.groupby(cle_facture, as_index=False).agg({
+    # Préparer le dictionnaire d'agrégation
+    agg_dict = {
         montant_col: 'sum',
         conso_col: 'sum',
         periode_col: 'first'
-    })
+    }
+    
+    # Ajouter les puissances si elles existent
+    if psabon_col in df_ht_e0.columns:
+        agg_dict[psabon_col] = 'max'  # Prendre le max pour les puissances
+    if psatteinte_col in df_ht_e0.columns:
+        agg_dict[psatteinte_col] = 'max'
+    
+    # Grouper et cumuler
+    df_cumul = df_ht_e0.groupby(cle_facture, as_index=False).agg(agg_dict)
     
     return df_cumul
 
@@ -146,7 +159,9 @@ def importer_factures_ht(df_ht, df_base_centrale, periode, has_typefact):
                 CONFIG_HT['cle_facture'], 
                 CONFIG_HT['montant_col'],
                 CONFIG_HT['conso_col'],
-                CONFIG_HT['periode_col']
+                CONFIG_HT['periode_col'],
+                CONFIG_HT['psabon_col'],
+                CONFIG_HT['psatteinte_col']
             )
             stats_typefact['E0']['cumul'] = len(df_e0_cumul)
         else:
@@ -232,6 +247,16 @@ def importer_factures_ht(df_ht, df_base_centrale, periode, has_typefact):
             df_base_centrale.loc[idx, 'CONSO'] = pd.to_numeric(conso_val, errors='coerce') or 0
             df_base_centrale.loc[idx, 'MONTANT'] = montant
             df_base_centrale.loc[idx, 'DATE_COMPLEMENTAIRE'] = periode if is_e1 else ''
+            
+            # ✅ AJOUT : Récupérer les puissances
+            if CONFIG_HT['psabon_col'] in df_traite.columns:
+                psabon_val = row_facture.get(CONFIG_HT['psabon_col'], 0)
+                df_base_centrale.loc[idx, 'PSABON'] = pd.to_numeric(psabon_val, errors='coerce') or 0
+            
+            if CONFIG_HT['psatteinte_col'] in df_traite.columns:
+                psatteinte_val = row_facture.get(CONFIG_HT['psatteinte_col'], 0)
+                df_base_centrale.loc[idx, 'PSATTEINTE'] = pd.to_numeric(psatteinte_val, errors='coerce') or 0
+            
             # Garder les autres colonnes telles quelles
             
         else:
@@ -245,6 +270,17 @@ def importer_factures_ht(df_ht, df_base_centrale, periode, has_typefact):
                 # Créer nouvelle ligne pour cette période
                 conso_val = row_facture.get(CONFIG_HT['conso_col'], 0) if CONFIG_HT['conso_col'] in df_traite.columns else 0
                 
+                # ✅ AJOUT : Récupérer les puissances depuis la facture
+                psabon_val = 0
+                psatteinte_val = 0
+                if CONFIG_HT['psabon_col'] in df_traite.columns:
+                    psabon_val = row_facture.get(CONFIG_HT['psabon_col'], 0)
+                    psabon_val = pd.to_numeric(psabon_val, errors='coerce') or 0
+                
+                if CONFIG_HT['psatteinte_col'] in df_traite.columns:
+                    psatteinte_val = row_facture.get(CONFIG_HT['psatteinte_col'], 0)
+                    psatteinte_val = pd.to_numeric(psatteinte_val, errors='coerce') or 0
+                
                 nouvelle_ligne = {
                     'UC': site_info.get('UC', ''),
                     'CODE RED': site_info.get('CODE RED', ''),
@@ -256,7 +292,10 @@ def importer_factures_ht(df_ht, df_base_centrale, periode, has_typefact):
                     'CONSO': pd.to_numeric(conso_val, errors='coerce') or 0,
                     'MONTANT': montant,
                     'DATE_COMPLEMENTAIRE': periode if is_e1 else '',
-                    'STATUT': site_info.get('STATUT', 'ACTIF')  # Préserver le statut existant
+                    'STATUT': site_info.get('STATUT', 'ACTIF'),  # Préserver le statut existant
+                    'PSABON': psabon_val,
+                    'PSATTEINTE': psatteinte_val,
+                    'COMPTE_CHARGE': site_info.get('COMPTE_CHARGE', '62183464')  # Préserver ou défaut
                 }
                 
                 nouvelles_lignes.append(nouvelle_ligne)
