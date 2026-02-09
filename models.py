@@ -180,6 +180,13 @@ def load_central():
     if 'IDENTIFIANT' in df.columns:
         df['IDENTIFIANT'] = df['IDENTIFIANT'].apply(normaliser_identifiant)
     
+    # Forcer COMPTE_CHARGE en type texte pour préserver les zéros initiaux
+    if 'COMPTE_CHARGE' in df.columns:
+        df['COMPTE_CHARGE'] = df['COMPTE_CHARGE'].astype(str)
+        # Remplacer 'nan' par la valeur par défaut
+        df['COMPTE_CHARGE'] = df['COMPTE_CHARGE'].replace('nan', '62183464')
+        df['COMPTE_CHARGE'] = df['COMPTE_CHARGE'].replace('', '62183464')
+    
     print(f"✅ Base centrale chargée : {len(df)} ligne(s)")
     return df
 
@@ -193,6 +200,11 @@ def save_central(df):
     """
     # Ne garder que les colonnes de la base centrale
     df_save = df[COLONNES_BASE_CENTRALE].copy()
+    
+    # Forcer COMPTE_CHARGE en type texte avant sauvegarde
+    if 'COMPTE_CHARGE' in df_save.columns:
+        df_save['COMPTE_CHARGE'] = df_save['COMPTE_CHARGE'].astype(str)
+        df_save['COMPTE_CHARGE'] = df_save['COMPTE_CHARGE'].replace('nan', '62183464')
     
     try:
         # Essayer de sauvegarder en pickle
@@ -277,6 +289,8 @@ def ajouter_lignes_base_centrale(df_base, nouvelles_lignes, periode):
     if 'COMPTE_CHARGE' in df_nouvelles.columns:
         df_nouvelles['COMPTE_CHARGE'] = df_nouvelles['COMPTE_CHARGE'].fillna('62183464')
         df_nouvelles['COMPTE_CHARGE'] = df_nouvelles['COMPTE_CHARGE'].replace('', '62183464')
+        # Forcer en type texte pour préserver les zéros initiaux
+        df_nouvelles['COMPTE_CHARGE'] = df_nouvelles['COMPTE_CHARGE'].astype(str)
     
     # Ajouter à la base
     df_resultat = pd.concat([df_base, df_nouvelles], ignore_index=True)
@@ -377,7 +391,7 @@ def generer_piece_comptable(df_base, periode, tension=None):
     # ✨ NOUVEAU : Récupérer COMPTE_CHARGE depuis la base centrale
     # Si la colonne n'existe pas ou est vide, utiliser la valeur par défaut
     if 'COMPTE_CHARGE' in df_filtre.columns:
-        piece['COMPTE DE CHARGES'] = df_filtre['COMPTE_CHARGE'].fillna('62183464')
+        piece['COMPTE DE CHARGES'] = df_filtre['COMPTE_CHARGE'].fillna('62183464').astype(str)
     else:
         piece['COMPTE DE CHARGES'] = '62183464'
     
