@@ -1,4 +1,4 @@
-# Dashboard KPI – SocGen CI (v2 avec Login)
+# Dashboard KPI – SocGen CI (v3)
 
 ## Installation & lancement
 
@@ -10,54 +10,77 @@ streamlit run app.py
 
 ---
 
-## Comptes utilisateurs (à changer en production)
+## Nouveautés v3
 
-| Identifiant     | Mot de passe      | Rôle        | KPIs visibles                        |
-|-----------------|-------------------|-------------|--------------------------------------|
-| admin           | Admin@2026        | Admin       | Tous les KPIs + logs connexion       |
-| jacques         | Jacques@2026      | Responsable | Encours dépôts retail & corporate    |
-| yssouf          | Yssouf@2026       | Responsable | Crédits + Commissions                |
-| hafsatou        | Hafsatou@2026     | Responsable | Dossiers échus + Décaissements       |
-| aymard          | Aymard@2026       | Responsable | Crédits échus Retail + PDI           |
-| jean-joseph     | JeanJoseph@2026   | Responsable | Suspens Comptable                    |
-| esther          | Esther@2026       | Responsable | CNR global, retail, corporate        |
-| nicanor         | Nicanor@2026      | Responsable | Ressources humaines                  |
-| isabelle        | Isabelle@2026     | Responsable | Gouvernance et Conformité            |
-| serge-francois  | Serge@2026        | Responsable | Disponibilité GAB                    |
+| Fonctionnalité | Détail |
+|---|---|
+| KPIs manquants | Nom du responsable affiché devant chaque KPI manquant |
+| Gestion référentiel | Admin peut ajouter/désactiver catégories et KPIs |
+| Dashboard Analytique | Vue DG/Admin avec stats approfondies sur l'historique |
+| Renommage | "Dashboard Global" → "Dashboard de saisies" |
+| Export Excel | Admin & DG peuvent télécharger l'historique en .xlsx formaté |
+| Export PowerPoint | Admin & DG peuvent télécharger le dashboard en .pptx (5 slides) |
 
 ---
 
-## Architecture
+## Comptes utilisateurs
 
-### Base de données SQLite : `kpi_socgen.db`
-
-**Table `saisies`** — Historique complet de toutes les saisies
-| Colonne      | Type    | Description                        |
-|--------------|---------|------------------------------------|
-| id           | INTEGER | Clé primaire auto-incrémentée      |
-| login        | TEXT    | Identifiant de l'utilisateur       |
-| nom_resp     | TEXT    | Nom affiché du responsable         |
-| categorie    | TEXT    | Catégorie du KPI                   |
-| kpi          | TEXT    | Libellé du KPI                     |
-| periodicite  | TEXT    | Mensuelle / Trimestrielle          |
-| periode      | TEXT    | Ex: "Avril 2026"                   |
-| valeur       | REAL    | Valeur numérique saisie            |
-| unite        | TEXT    | Unité (%, FCFA, nombre…)           |
-| commentaire  | TEXT    | Commentaire libre                  |
-| date_saisie  | TEXT    | Horodatage ISO de la saisie        |
-
-**Table `logs_connexion`** — Traçabilité des connexions
-| Colonne   | Type    | Description          |
-|-----------|---------|----------------------|
-| id        | INTEGER | Clé primaire         |
-| login     | TEXT    | Identifiant          |
-| action    | TEXT    | LOGIN / LOGOUT       |
-| timestamp | TEXT    | Horodatage           |
+| Identifiant     | Mot de passe      | Rôle        | Accès                                  |
+|-----------------|-------------------|-------------|----------------------------------------|
+| admin           | Admin@2026        | Admin       | Tout + gestion référentiel + logs      |
+| dg              | DG@2026           | DG          | Dashboard analytique + exports         |
+| jacques         | Jacques@2026      | Responsable | Ses KPIs uniquement                    |
+| yssouf          | Yssouf@2026       | Responsable | Ses KPIs uniquement                    |
+| hafsatou        | Hafsatou@2026     | Responsable | Ses KPIs uniquement                    |
+| aymard          | Aymard@2026       | Responsable | Ses KPIs uniquement                    |
+| jean-joseph     | JeanJoseph@2026   | Responsable | Ses KPIs uniquement                    |
+| esther          | Esther@2026       | Responsable | Ses KPIs uniquement                    |
+| nicanor         | Nicanor@2026      | Responsable | Ses KPIs uniquement                    |
+| isabelle        | Isabelle@2026     | Responsable | Ses KPIs uniquement                    |
+| serge-francois  | Serge@2026        | Responsable | Ses KPIs uniquement                    |
 
 ---
 
-## Règles d'accès
+## Structure de la base `kpi_socgen.db`
 
-- **Responsable** : voit uniquement ses KPIs assignés, son historique personnel
-- **Admin** : voit tout (tous les KPIs, tout l'historique, les logs de connexion)
-- Un responsable **ne peut pas** voir ni modifier les saisies d'un autre responsable
+### Table `kpi_ref` — Référentiel dynamique des KPIs
+| Colonne     | Description                        |
+|-------------|------------------------------------|
+| id          | Clé primaire                       |
+| categorie   | Catégorie du KPI                   |
+| kpi         | Libellé du KPI                     |
+| periodicite | Mensuelle / Trimestrielle / etc.   |
+| email       | Email du responsable               |
+| nom         | Nom du responsable                 |
+| actif       | 1=actif, 0=désactivé               |
+
+### Table `saisies` — Historique complet
+| Colonne      | Description                        |
+|--------------|------------------------------------|
+| id           | Clé primaire auto                  |
+| login        | Identifiant de connexion           |
+| nom_resp     | Nom affiché du responsable         |
+| categorie    | Catégorie du KPI                   |
+| kpi          | Libellé du KPI                     |
+| periodicite  | Fréquence                          |
+| periode      | Ex: "Avril 2026"                   |
+| valeur       | Valeur numérique                   |
+| unite        | Unité (%, FCFA, nombre…)           |
+| commentaire  | Commentaire libre                  |
+| date_saisie  | Horodatage ISO                     |
+
+### Table `logs_connexion` — Traçabilité
+| Colonne   | Description          |
+|-----------|----------------------|
+| login     | Identifiant          |
+| action    | LOGIN / LOGOUT       |
+| timestamp | Horodatage           |
+
+---
+
+## Export PowerPoint (5 slides)
+1. Slide titre
+2. Vue d'ensemble (métriques + barres de complétion)
+3. Saisies par responsable
+4. Tableau des 20 dernières saisies
+5. KPIs manquants avec responsables
