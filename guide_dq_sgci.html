@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Guide DQ — Framework Simplifié SGCI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #161b27;
+    --surface2: #1e2535;
+    --border: #2a3347;
+    --accent: #3b82f6;
+    --accent-soft: rgba(59,130,246,0.12);
+    --accent2: #10b981;
+    --accent2-soft: rgba(16,185,129,0.12);
+    --warn: #f59e0b;
+    --warn-soft: rgba(245,158,11,0.12);
+    --danger: #ef4444;
+    --danger-soft: rgba(239,68,68,0.12);
+    --text: #e2e8f0;
+    --text-muted: #64748b;
+    --text-dim: #94a3b8;
+    --sidebar-w: 260px;
+    --code-bg: #0d1117;
+    --radius: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* ── SIDEBAR ── */
+  #sidebar {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: var(--sidebar-w);
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-header {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(135deg, #1a2540, #0f1117);
+  }
+
+  .sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .logo-badge {
+    background: var(--accent);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.08em;
+  }
+
+  .sidebar-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .sidebar-subtitle {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .sidebar-nav {
+    padding: 12px 0;
+    flex: 1;
+  }
+
+  .nav-section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    padding: 8px 20px 4px;
+    margin-top: 8px;
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 20px;
+    font-size: 13px;
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: all 0.15s;
+    border-left: 2px solid transparent;
+  }
+
+  .nav-link:hover {
+    color: var(--text);
+    background: var(--surface2);
+    border-left-color: var(--accent);
+  }
+
+  .nav-link.active {
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-left-color: var(--accent);
+  }
+
+  .nav-icon {
+    font-size: 14px;
+    width: 18px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .sidebar-footer strong {
+    display: block;
+    color: var(--text-dim);
+    font-size: 12px;
+  }
+
+  /* ── MAIN CONTENT ── */
+  #main {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    padding: 0;
+    max-width: 900px;
+  }
+
+  .hero {
+    background: linear-gradient(135deg, #1a2540 0%, #0f1117 60%);
+    border-bottom: 1px solid var(--border);
+    padding: 48px 56px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 280px; height: 280px;
+    background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent-soft);
+    border: 1px solid rgba(59,130,246,0.3);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+
+  .hero h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #f1f5f9;
+    line-height: 1.25;
+    margin-bottom: 8px;
+  }
+
+  .hero-sub {
+    font-size: 15px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .meta-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  .meta-chip span { color: var(--text); font-weight: 600; }
+
+  .pipeline-visual {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 18px 24px;
+    margin: 0 56px 40px;
+    margin-top: -1px;
+    border-radius: 0 0 var(--radius) var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    flex-wrap: wrap;
+  }
+
+  .pipeline-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .pipeline-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .pipeline-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  .pipeline-arrow {
+    color: var(--border);
+    font-size: 18px;
+    padding: 0 8px;
+    align-self: center;
+    margin-top: -12px;
+  }
+
+  /* ── CONTENT AREA ── */
+  .content {
+    padding: 0 56px 60px;
+  }
+
+  /* ── SECTION ── */
+  .section {
+    margin-bottom: 56px;
+    scroll-margin-top: 24px;
+  }
+
+  .section-heading {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .step-badge {
+    background: var(--accent);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .section-heading h2 {
+    font-size: 19px;
+    font-weight: 700;
+    color: #f1f5f9;
+    flex: 1;
+  }
+
+  h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin: 28px 0 12px;
+  }
+
+  p {
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+
+  strong { color: var(--text); font-weight: 600; }
+
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ── CODE BLOCKS ── */
+  .code-wrap {
+    position: relative;
+    margin: 16px 0;
+  }
+
+  .code-label {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    z-index: 2;
+  }
+
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    overflow-x: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #c9d1d9;
+  }
+
+  code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    background: rgba(59,130,246,0.1);
+    color: #93c5fd;
+    padding: 1px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(59,130,246,0.2);
+  }
+
+  pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    color: inherit;
+    font-size: inherit;
+  }
+
+  /* Syntax highlighting from original */
+  .highlight { background: var(--code-bg) !important; }
+  .highlight .k, .highlight .kn, .highlight .kd, .highlight .kc, .highlight .kr, .highlight .kp, .highlight .kt { color: #ff7b72; font-weight: bold; }
+  .highlight .s, .highlight .s1, .highlight .s2, .highlight .sa, .highlight .sb, .highlight .se { color: #a5d6ff; }
+  .highlight .c, .highlight .c1, .highlight .cm, .highlight .cs, .highlight .cp { color: #8b949e; font-style: italic; }
+  .highlight .n { color: #c9d1d9; }
+  .highlight .o, .highlight .ow { color: #ff7b72; font-weight: bold; }
+  .highlight .m, .highlight .mi, .highlight .mf, .highlight .mh { color: #79c0ff; }
+  .highlight .p, .highlight .pm { color: #c9d1d9; }
+  .highlight .nb { color: #d2a8ff; }
+  .highlight .nn { color: #79c0ff; }
+  .highlight .nf { color: #d2a8ff; }
+  .highlight .err { color: #f85149; }
+
+  /* ── TABLES ── */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 16px 0;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+
+  thead {
+    background: var(--surface2);
+  }
+
+  th {
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-dim);
+    vertical-align: top;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tr:hover td { background: var(--surface2); }
+
+  td:first-child {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  /* ── CALLOUTS ── */
+  .callout {
+    display: flex;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: var(--radius);
+    margin: 16px 0;
+    border: 1px solid;
+  }
+
+  .callout-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .callout-body { flex: 1; font-size: 13.5px; color: var(--text-dim); }
+  .callout-body strong { display: block; margin-bottom: 4px; }
+
+  .callout.info { background: var(--accent-soft); border-color: rgba(59,130,246,0.3); }
+  .callout.info .callout-body strong { color: var(--accent); }
+  .callout.success { background: var(--accent2-soft); border-color: rgba(16,185,129,0.3); }
+  .callout.success .callout-body strong { color: var(--accent2); }
+  .callout.warning { background: var(--warn-soft); border-color: rgba(245,158,11,0.3); }
+  .callout.warning .callout-body strong { color: var(--warn); }
+
+  /* ── CONTROL CARDS ── */
+  .controls-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 16px 0;
+  }
+
+  .control-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    transition: border-color 0.15s;
+  }
+
+  .control-card:hover { border-color: var(--accent); }
+
+  .control-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .ctrl-num {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid rgba(59,130,246,0.3);
+    padding: 2px 7px;
+    border-radius: 3px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .ctrl-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .ctrl-question {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    line-height: 1.5;
+  }
+
+  .ctrl-example {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  /* ── STATUS PILLS ── */
+  .ok   { color: var(--accent2); }
+  .fail { color: var(--danger); }
+
+  .result-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 6px 0;
+    font-size: 13px;
+  }
+
+  .result-icon { font-size: 14px; flex-shrink: 0; margin-top: 2px; }
+
+  .result-text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    flex: 1;
+  }
+
+  /* ── DIRECTORY TREE ── */
+  .tree-wrap {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    margin: 16px 0;
+  }
+
+  .tree-dir  { color: #79c0ff; font-weight: 600; }
+  .tree-file { color: #c9d1d9; }
+  .tree-cmt  { color: #8b949e; font-style: italic; }
+  .tree-sym  { color: #8b949e; }
+
+  /* ── FAQ ── */
+  .faq-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+
+  .faq-q {
+    padding: 14px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    user-select: none;
+  }
+
+  .faq-q::before {
+    content: '▸';
+    color: var(--accent);
+    font-size: 11px;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+
+  .faq-item.open .faq-q::before { transform: rotate(90deg); }
+
+  .faq-a {
+    display: none;
+    padding: 0 18px 16px 42px;
+    font-size: 13.5px;
+    color: var(--text-dim);
+    border-top: 1px solid var(--border);
+    padding-top: 14px;
+    line-height: 1.7;
+  }
+
+  .faq-item.open .faq-a { display: block; }
+
+  /* ── FLOW DIAGRAM ── */
+  .flow-diagram {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin: 16px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+  }
+
+  .flow-box {
+    padding: 8px 24px;
+    border-radius: 6px;
+    border: 1px solid;
+    text-align: center;
+    min-width: 220px;
+  }
+
+  .flow-box.extract { border-color: rgba(59,130,246,0.4); background: rgba(59,130,246,0.08); color: #93c5fd; }
+  .flow-box.run     { border-color: rgba(168,85,247,0.4); background: rgba(168,85,247,0.08); color: #c4b5fd; }
+  .flow-box.ok      { border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.08); color: #6ee7b7; }
+  .flow-box.fail    { border-color: rgba(239,68,68,0.4);  background: rgba(239,68,68,0.08);  color: #fca5a5; }
+  .flow-box.log     { border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.08); color: #fcd34d; }
+
+  .flow-arrow { color: var(--text-muted); padding: 4px 0; font-size: 16px; }
+
+  .flow-branch {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+  }
+
+  .flow-branch-side {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  .flow-branch-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    padding: 2px 0;
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── DIVIDER ── */
+  hr { border: none; border-top: 1px solid var(--border); margin: 36px 0; }
+
+  /* ── LIST ── */
+  ul, ol {
+    padding-left: 20px;
+    color: var(--text-dim);
+    font-size: 14px;
+  }
+
+  li { margin-bottom: 6px; }
+
+  blockquote {
+    border-left: 3px solid var(--accent);
+    padding: 10px 16px;
+    margin: 16px 0;
+    background: var(--accent-soft);
+    border-radius: 0 6px 6px 0;
+    font-size: 13.5px;
+    color: var(--text-dim);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    #sidebar { display: none; }
+    #main { margin-left: 0; }
+    .hero, .content { padding-left: 24px; padding-right: 24px; }
+    .pipeline-visual { margin: 0 24px 32px; }
+    .controls-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">
+      <span class="logo-badge">SGCI</span>
+    </div>
+    <div class="sidebar-title">Framework DQ Simplifié</div>
+    <div class="sidebar-subtitle">Guide Utilisateur · Data Engineering</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section-label">Aperçu</div>
+    <a href="#s1" class="nav-link active">
+      <span class="nav-icon">🎯</span> À quoi sert ce framework ?
+    </a>
+    <a href="#s2" class="nav-link">
+      <span class="nav-icon">📁</span> Structure des dossiers
+    </a>
+    <div class="nav-section-label">Pipeline</div>
+    <a href="#s3" class="nav-link">
+      <span class="nav-icon">⚙️</span> Étape 0 — Setup
+    </a>
+    <a href="#s4" class="nav-link">
+      <span class="nav-icon">🔌</span> Étape 1 — Connexion Teradata
+    </a>
+    <a href="#s5" class="nav-link">
+      <span class="nav-icon">🔍</span> Étape 2 — Contrôles DQ
+    </a>
+    <a href="#s6" class="nav-link">
+      <span class="nav-icon">▶️</span> Étape 3 — run_dq()
+    </a>
+    <a href="#s7" class="nav-link">
+      <span class="nav-icon">📝</span> Étape 4 — log()
+    </a>
+    <a href="#s8" class="nav-link">
+      <span class="nav-icon">📊</span> Étape 5 — Résultats
+    </a>
+    <div class="nav-section-label">Référence</div>
+    <a href="#s9" class="nav-link">
+      <span class="nav-icon">📋</span> Template
+    </a>
+    <a href="#s10" class="nav-link">
+      <span class="nav-icon">❓</span> FAQ
+    </a>
+  </div>
+  <div class="sidebar-footer">
+    <strong>Niamien Alexandre</strong>
+    SGCI · Data Engineering
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main id="main">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-label">📘 Guide Utilisateur</div>
+    <h1>Framework DQ Simplifié SGCI</h1>
+    <div class="hero-sub">Tout ce que tu dois savoir pour valider tes extractions Teradata</div>
+    <div class="hero-meta">
+      <div class="meta-chip">✍️ Auteur : <span>Niamien Alexandre</span></div>
+      <div class="meta-chip">🏢 Service : <span>Data Engineering</span></div>
+      <div class="meta-chip">🔢 Version : <span>6 contrôles DQ</span></div>
+    </div>
+  </div>
+
+  <!-- Pipeline visual -->
+  <div class="pipeline-visual">
+    <div class="pipeline-step">
+      <div class="pipeline-box">extraire()</div>
+      <div class="pipeline-label">SQL → DataFrame</div>
+    </div>
+    <div class="pipeline-arrow">→</div>
+    <div class="pipeline-step">
+      <div class="pipeline-box">run_dq()</div>
+      <div class="pipeline-label">6 contrôles auto</div>
+    </div>
+    <div class="pipeline-arrow">→</div>
+    <div class="pipeline-step">
+      <div class="pipeline-box">log()</div>
+      <div class="pipeline-label">Journal CSV</div>
+    </div>
+    <div class="pipeline-arrow">→</div>
+    <div class="pipeline-step">
+      <div class="pipeline-box" style="border-color: rgba(16,185,129,0.4); color: #6ee7b7;">EXPORTS/</div>
+      <div class="pipeline-label">CSV validé</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- SECTION 1 -->
+    <div class="section" id="s1">
+      <div class="section-heading">
+        <div class="step-badge">1</div>
+        <h2>À quoi sert ce framework ?</h2>
+      </div>
+      <p>Chaque fois que tu extrais des données depuis Teradata dans Jupyter, tu as besoin de savoir si ces données sont fiables avant de les utiliser ou de les transmettre. Ce framework t'aide à répondre automatiquement à 6 questions essentielles.</p>
+
+      <h3>Les 6 contrôles posés sur chaque extraction</h3>
+      <div class="controls-grid">
+        <div class="control-card">
+          <div class="control-card-header">
+            <span class="ctrl-num">01</span>
+            <span class="ctrl-name">Unicité</span>
+          </div>
+          <div class="ctrl-question">Y a-t-il des lignes entièrement dupliquées ?</div>
+          <div class="ctrl-example">Ex : la même transaction extraite 2 fois</div>
+        </div>
+        <div class="control-card">
+          <div class="control-card-header">
+            <span class="ctrl-num">02</span>
+            <span class="ctrl-name">Complétude</span>
+          </div>
+          <div class="ctrl-question">Le nombre de lignes est-il dans l'intervalle attendu ?</div>
+          <div class="ctrl-example">Ex : 0 lignes un jour de batch qui a planté</div>
+        </div>
+        <div class="control-card">
+          <div class="control-card-header">
+            <span class="ctrl-num">03</span>
+            <span class="ctrl-name">Fraîcheur</span>
+          </div>
+          <div class="ctrl-question">Les données contiennent-elles des lignes dans la période d'extraction ?</div>
+          <div class="ctrl-example">Ex : extraction de J-2 au lieu de J-1</div>
+        </div>
+        <div class="control-card">
+          <div class="control-card-header">
+            <span class="ctrl-num">04</span>
+            <span class="ctrl-name">Cohérence</span>
+          </div>
+          <div class="ctrl-question">Aucune colonne n'est-elle entièrement vide ?</div>
+          <div class="ctrl-example">Ex : BRANCH_CODE vide suite à une migration</div>
+        </div>
+        <div class="control-card">
+          <div class="control-card-header">
+            <span class="ctrl-num">05</span>
+            <span class="ctrl-name">Validité</span>
+          </div>
+          <div class="ctrl-question">Les colonnes sont-elles dans le bon type ?</div>
+          <div class="ctrl-example">Ex : MVT_ID retournée en float au lieu d'int</div>
+        </div>
+        <div class="control-card">
+          <div class="control-card-header">
+            <span class="ctrl-num">06</span>
+            <span class="ctrl-name">Exactitude</span>
+          </div>
+          <div class="ctrl-question">Les colonnes attendues sont-elles présentes ?</div>
+          <div class="ctrl-example">Ex : BRANCH_CODE et MVT_ID absentes de l'extraction</div>
+        </div>
+      </div>
+
+      <h3>Ce qui se passe après les contrôles</h3>
+      <div class="flow-diagram">
+        <div class="flow-box extract">Extraction Teradata</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-box run">run_dq() — 6 contrôles lancés automatiquement</div>
+        <div class="flow-arrow">↓</div>
+        <div style="font-size:11px; color: var(--text-muted); margin: 2px 0;">Toutes OK ?</div>
+        <div class="flow-branch">
+          <div class="flow-branch-side">
+            <div class="flow-branch-label">✅ OUI</div>
+            <div class="flow-box ok">Export CSV</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-box log">log()</div>
+          </div>
+          <div class="flow-branch-side">
+            <div class="flow-branch-label">❌ NON</div>
+            <div class="flow-box fail">Pas d'export</div>
+            <div class="flow-arrow">↓</div>
+            <div class="flow-box log">log()</div>
+          </div>
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-box log">journal_dq.csv mis à jour</div>
+      </div>
+
+      <ul>
+        <li>Si <strong>toutes les dimensions sont OK</strong> : le DataFrame est exporté en CSV dans <code>./EXPORTS/</code>, prêt à être utilisé.</li>
+        <li>Si <strong>au moins une dimension est en ECHEC</strong> : aucun fichier n'est exporté. L'erreur est enregistrée dans le journal pour investigation.</li>
+      </ul>
+    </div>
+
+    <hr/>
+
+    <!-- SECTION 2 -->
+    <div class="section" id="s2">
+      <div class="section-heading">
+        <div class="step-badge">2</div>
+        <h2>Structure des dossiers</h2>
+      </div>
+      <p>Après la première exécution, tu trouveras cette arborescence dans ton répertoire de travail :</p>
+
+      <div class="tree-wrap">
+        <span class="tree-dir">le_projet/</span><br/>
+        <span class="tree-sym">├── </span><span class="tree-file">mon_notebook.ipynb</span>   <span class="tree-cmt">← le notebook Jupyter</span><br/>
+        <span class="tree-sym">│</span><br/>
+        <span class="tree-sym">├── </span><span class="tree-dir">JOURNAL/</span><br/>
+        <span class="tree-sym">│   ├── </span><span class="tree-file">sgci_dq.log</span>           <span class="tree-cmt">← log texte en temps réel</span><br/>
+        <span class="tree-sym">│   └── </span><span class="tree-file">journal_dq.csv</span>        <span class="tree-cmt">← historique de toutes les exécutions</span><br/>
+        <span class="tree-sym">│</span><br/>
+        <span class="tree-sym">└── </span><span class="tree-dir">EXPORTS/</span><br/>
+        <span class="tree-sym">    ├── </span><span class="tree-file">transactions_journalieres_20260615_060123.csv</span><br/>
+        <span class="tree-sym">    └── </span><span class="tree-cmt">...</span>
+      </div>
+
+      <h3>Le dossier JOURNAL</h3>
+      <p>Le dossier <code>JOURNAL</code> contient deux fichiers complémentaires :</p>
+      <p><strong><code>sgci_dq.log</code></strong> — log en temps réel avec horodatage. Il ressemble à :</p>
+      <div class="code-wrap">
+        <div class="code-label">LOG</div>
+        <pre>2026-06-15 06:00:01 | INFO     | sgci_dq    | DQ — TRANSACTIONS JOURNALIERES | 250 lignes
+2026-06-15 06:00:01 | INFO     | Unicité    | OK — Aucun doublon
+2026-06-15 06:00:01 | INFO     | Complétude | OK — 250 lignes dans [50, 1000]
+2026-06-15 06:00:02 | ERROR    | Cohérence  | ECHEC — Colonne(s) vide(s) : ['BRANCH_CODE']
+2026-06-15 06:00:02 | WARNING  | Export annulé — 1 dimension(s) en ECHEC</pre>
+      </div>
+
+      <p><strong><code>journal_dq.csv</code></strong> — historique tabulaire de toutes les exécutions. Chaque ligne = une exécution. On peut l'ouvrir dans Excel ou avec <code>pd.read_csv()</code>.</p>
+
+      <h3>Le dossier EXPORTS</h3>
+      <p>Contient uniquement les données ayant passé tous les contrôles. Les fichiers sont nommés automatiquement :</p>
+      <div class="code-wrap">
+        <pre>transactions_journalieres_20260615_060123.csv</pre>
+      </div>
+    </div>
+
+    <hr/>
+
+    <!-- SECTION 3 -->
+    <div class="section" id="s3">
+      <div class="section-heading">
+        <div class="step-badge">3</div>
+        <h2>Étape 0 — Setup</h2>
+      </div>
+      <div class="callout info">
+        <div class="callout-icon">💡</div>
+        <div class="callout-body"><strong>À exécuter une seule fois par session</strong>
+          La cellule de setup importe les bibliothèques, crée les dossiers et initialise le logger.
+        </div>
+      </div>
+
+      <h3>Ce que fait le setup</h3>
+      <div class="code-wrap">
+        <div class="code-label">Python</div>
+        <div class="highlight"><pre><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">logging</span><span class="o">,</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">pytz</span>
+
+<span class="n">LOG_DIR</span>       <span class="o">=</span> <span class="s2">"./JOURNAL/"</span>    <span class="c1"># dossier des logs</span>
+<span class="n">EXPORT_DIR</span>    <span class="o">=</span> <span class="s2">"./EXPORTS/"</span>    <span class="c1"># dossier des exports CSV</span>
+<span class="n">LOG_FILE_NAME</span> <span class="o">=</span> <span class="s2">"journal_dq.csv"</span>
+<span class="n">TZ_ABIDJAN</span>    <span class="o">=</span> <span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="s2">"Africa/Abidjan"</span><span class="p">)</span>  <span class="c1"># UTC+0</span>
+
+<span class="c1"># Création automatique des dossiers s'ils n'existent pas</span>
+<span class="n">Path</span><span class="p">(</span><span class="n">LOG_DIR</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">Path</span><span class="p">(</span><span class="n">EXPORT_DIR</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></pre></div>
+      </div>
+
+      <h3>Le logger</h3>
+      <p>Le logger écrit automatiquement des messages horodatés dans deux endroits en simultané : le fichier <code>sgci_dq.log</code> (archivage) et la console Jupyter (temps réel). Il est utilisé en interne par <code>run_dq()</code>, pas besoin d'y toucher directement.</p>
+    </div>
+
+    <hr/>
+
+    <!-- SECTION 4 -->
+    <div class="section" id="s4">
+      <div class="section-heading">
+        <div class="step-badge">4</div>
+        <h2>Étape 1 — Se connecter à Teradata</h2>
+      </div>
+
+      <h3>Définir ses credentials</h3>
+      <div class="callout warning">
+        <div class="callout-icon">⚠️</div>
+        <div class="callout-body"><strong>Sécurité</strong>
+          Les mots de passe ne doivent <strong>jamais</strong> être écrits directement dans le code. On utilise des variables d'environnement définies une seule fois par session. Ces valeurs disparaissent à la fermeture du notebook et ne sont jamais sauvegardées dans le fichier <code>.ipynb</code>.
+        </div>
+      </div>
+
+      <h3>Extraire des données</h3>
+      <p>La fonction <code>extraire()</code> exécute une requête SQL et retourne un DataFrame. Elle mesure automatiquement la durée d'extraction et log le nombre de lignes récupérées.</p>
+      <div class="code-wrap">
+        <div class="code-label">Python</div>
+        <div class="highlight"><pre><span class="n">df</span> <span class="o">=</span> <span class="n">extraire</span><span class="p">(</span><span class="s2">"""
+    SELECT col1, col2, MA_DATE, ...
+    FROM SGCI_DB.MA_TABLE
+    WHERE MA_DATE = CURRENT_DATE - 1
+"""</span><span class="p">,</span> <span class="s2">"transactions_J1"</span><span class="p">)</span></pre></div>
+      </div>
+    </div>
+
+    <hr/>
+
+    <!-- SECTION 5 -->
+    <div class="section" id="s5">
+      <div class="section-heading">
+        <div class="step-badge">5</div>
+        <h2>Étape 2 — Les 6 contrôles DQ</h2>
+      </div>
+      <p>Les 6 fonctions de contrôle sont indépendantes. On n'a généralement pas besoin de les appeler directement — <code>run_dq()</code> le fait. Voici comment chacune fonctionne.</p>
+
+      <h3>Contrôle 1 — Unicité</h3>
+      <div class="code-wrap"><div class="code-label">Python</div>
+        <div class="highlight"><pre><span class="n">check_unicite</span><span class="p">(</span><span class="n">df</span><span class="p">)</span></pre></div>
+      </div>
+      <p>Utilise <code>df.duplicated(keep=False)</code> pour compter les lignes identiques sur <strong>toutes</strong> les colonnes. 2 lignes identiques colonne par colonne = doublons.</p>
+      <div class="result-row"><div class="result-icon ok">✅</div><div class="result-text">"Aucun doublon" — toutes les lignes sont uniques</div></div>
+      <div class="result-row"><div class="result-icon fail">❌</div><div class="result-text">"4 ligne(s) entièrement dupliquée(s)" — 2 paires de lignes identiques</div></div>
+      <p style="margin-top:10px;"><strong>Quand ça arrive :</strong> jointure SQL mal construite, extraction qui se chevauche, batch qui a tourné deux fois.</p>
+
+      <hr/>
+
+      <h3>Contrôle 2 — Complétude</h3>
+      <div class="code-wrap"><div class="code-label">Python</div>
+        <div class="highlight"><pre><span class="n">check_completude</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">min_lignes</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">max_lignes</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span></pre></div>
+      </div>
+      <p>Compare <code>len(df)</code> à l'intervalle <code>[min_lignes, max_lignes]</code> que tu définis toi-même. Regarde les historiques des derniers jours pour calibrer l'intervalle avec une marge raisonnable.</p>
+      <div class="result-row"><div class="result-icon ok">✅</div><div class="result-text">"250 ligne(s) dans [50, 1000]" — volume normal</div></div>
+      <div class="result-row"><div class="result-icon fail">❌</div><div class="result-text">"0 ligne(s) — en dessous du minimum (50)" — table vide ou batch en échec</div></div>
+
+      <hr/>
+
+      <h3>Contrôle 3 — Fraîcheur</h3>
+      <div class="code-wrap"><div class="code-label">Python</div>
+        <div class="highlight"><pre><span class="n">check_fraicheur</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">col_date</span><span class="o">=</span><span class="s2">"DATE"</span><span class="p">,</span> <span class="n">date_debut</span><span class="o">=</span><span class="n">hier</span><span class="p">,</span> <span class="n">date_fin</span><span class="o">=</span><span class="n">hier</span><span class="p">)</span></pre></div>
+      </div>
+      <p>Convertit les valeurs de <code>col_date</code> en dates Python, puis compte les lignes dans <code>[date_debut, date_fin]</code>. Si aucune ligne n'est dans cet intervalle, les données ne correspondent pas à la période attendue.</p>
+      <div class="result-row"><div class="result-icon ok">✅</div><div class="result-text">"250 ligne(s) dans [2026-06-14, 2026-06-14]" — données fraîches</div></div>
+      <div class="result-row"><div class="result-icon fail">❌</div><div class="result-text">"Aucune ligne dans [2026-06-14, 2026-06-14] — dates trouvées : 2026-06-13 → 2026-06-13"</div></div>
+
+      <hr/>
+
+      <h3>Contrôle 4 — Cohérence</h3>
+      <div class="code-wrap"><div class="code-label">Python</div>
+        <div class="highlight"><pre><span class="n">check_coherence</span><span class="p">(</span><span class="n">df</span><span class="p">)</span></pre></div>
+      </div>
+      <p>Parcourt toutes les colonnes et vérifie qu'aucune n'est entièrement nulle avec <code>df[col].isnull().all()</code>. Une colonne 100% vide signifie en général un problème SQL (mauvaise jointure, colonne inexistante).</p>
+      <div class="result-row"><div class="result-icon ok">✅</div><div class="result-text">"Aucune colonne entièrement vide" — toutes les colonnes ont au moins une valeur</div></div>
+      <div class="result-row"><div class="result-icon fail">❌</div><div class="result-text">"Colonne(s) entièrement vide(s) : ['BRANCH_CODE', 'REGION']"</div></div>
+
+      <hr/>
+
+      <h3>Contrôle 5 — Validité</h3>
+      <div class="code-wrap"><div class="code-label">Python</div>
+        <div class="highlight"><pre><span class="n">check_validite</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">types_attendus</span><span class="o">=</span><span class="p">{</span><span class="s2">"AMOUNT"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">"TRN_REF"</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="s2">"MVT_ID"</span><span class="p">:</span> <span class="nb">int</span><span class="p">})</span></pre></div>
+      </div>
+      <p>Vérifie que le type pandas de chaque colonne correspond au type Python attendu. On ne liste que les colonnes importantes.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Type Python</th><th>Signification</th><th>Exemple</th></tr></thead>
+          <tbody>
+            <tr><td>str</td><td>Texte</td><td>"TRN00000001", "XOF"</td></tr>
+            <tr><td>float</td><td>Nombre décimal</td><td>125000.50, 0.0</td></tr>
+            <tr><td>int</td><td>Nombre entier</td><td>42, 1000</td></tr>
+            <tr><td>bool</td><td>Booléen</td><td>True, False</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="result-row"><div class="result-icon ok">✅</div><div class="result-text">"Tous les types sont conformes"</div></div>
+      <div class="result-row"><div class="result-icon fail">❌</div><div class="result-text">"'MVT_ID' : attendu numérique entier, trouvé float64"</div></div>
+
+      <blockquote><strong>Note :</strong> Teradata retourne souvent des types légèrement différents de ce qu'on attend. Ce contrôle détecte ces écarts avant qu'ils causent des erreurs plus loin dans le traitement.</blockquote>
+    </div>
+
+    <hr/>
+
+    <!-- SECTION 6 -->
+    <div class="section" id="s6">
+      <div class="section-heading">
+        <div class="step-badge">6</div>
+        <h2>Étape 3 — Lancer le pipeline avec run_dq()</h2>
+      </div>
+      <p><code>run_dq()</code> est la fonction centrale. Elle orchestre les 6 contrôles et décide si les données sont exportées ou non.</p>
+
+      <h3>Signature complète</h3>
+      <div class="code-wrap"><div class="code-label">Python</div>
+        <div class="highlight"><pre><span class="n">rapport</span> <span class="o">=</span> <span class="n">run_dq</span><span class="p">(</span>
+    <span class="n">df</span>             <span class="o">=</span> <span class="n">df</span><span class="p">,</span>                <span class="c1"># DataFrame extrait de Teradata</span>
+    <span class="n">nom</span>            <span class="o">=</span> <span class="s2">"mon_extraction"</span><span class="p">,</span>   <span class="c1"># Nom descriptif (utilisé pour nommer le CSV)</span>
+    <span class="n">min_lignes</span>     <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>                <span class="c1"># Nombre minimum de lignes attendu</span>
+    <span class="n">max_lignes</span>     <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>              <span class="c1"># Nombre maximum de lignes attendu</span>
+    <span class="n">col_date</span>       <span class="o">=</span> <span class="s2">"MA_DATE"</span><span class="p">,</span>         <span class="c1"># Colonne de date pour le contrôle fraîcheur</span>
+    <span class="n">date_debut</span>     <span class="o">=</span> <span class="n">hier</span><span class="p">,</span>              <span class="c1"># Début de la période attendue</span>
+    <span class="n">date_fin</span>       <span class="o">=</span> <span class="n">hier</span><span class="p">,</span>              <span class="c1"># Fin de la période attendue</span>
+    <span class="n">types_attendus</span> <span class="o">=</span> <span class="p">{</span>                  <span class="c1"># Types attendus pour les colonnes clés</span>
+        <span class="s2">"MA_CLE"</span>      <span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="s2">"MON_MONTANT"</span> <span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span></pre></div>
+      </div>
+
+      <h3>Ce que retourne run_dq()</h3>
+      <div class="code-wrap"><div class="code-label">Dict</div>
+        <div class="highlight"><pre><span class="n">rapport</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"nom"</span>        <span class="p">:</span> <span class="s2">"transactions_journalieres"</span><span class="p">,</span>
+    <span class="s2">"timestamp"</span>  <span class="p">:</span> <span class="s2">"2026-06-15T06:00:01.234567"</span><span class="p">,</span>
+    <span class="s2">"nb_lignes"</span>  <span class="p">:</span> <span class="mi">250</span><span class="p">,</span>
+    <span class="s2">"valide"</span>     <span class="p">:</span> <span class="kc">True</span><span class="p">,</span>     <span class="c1"># True = toutes OK, False = au moins un ECHEC</span>
+    <span class="s2">"controles"</span>  <span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"Unicité"</span>    <span class="p">:</span> <span class="p">{</span><span class="s2">"statut"</span><span class="p">:</span> <span class="s2">"OK"</span><span class="p">,</span> <span class="s2">"message"</span><span class="p">:</span> <span class="s2">"Aucun doublon"</span><span class="p">},</span>
+        <span class="s2">"Complétude"</span> <span class="p">:</span> <span class="p">{</span><span class="s2">"statut"</span><span class="p">:</span> <span class="s2">"OK"</span><span class="p">,</span> <span class="s2">"message"</span><span class="p">:</span> <span class="s2">"250 lignes dans [50, 1000]"</span><span class="p">},</span>
+        <span class="s2">"Fraîcheur"</span>  <span class="p">:</span> <span class="p">{</span><span class="s2">"statut"</span><span class="p">:</span> <span class="s2">"OK"</span><span class="p">,</span> <span class="s2">"message"</span><span class="p">:</span> <span class="s2">"250 lignes dans [2026-06-14, 2026-06-14]"</span><span class="p">},</span>
+        <span class="s2">"Cohérence"</span>  <span class="p">:</span> <span class="p">{</span><span class="s2">"statut"</span><span class="p">:</span> <span class="s2">"OK"</span><span class="p">,</span> <span class="s2">"message"</span><span class="p">:</span> <span class="s2">"Aucune colonne entièrement vide"</span><span class="p">},</span>
+        <span class="s2">"Validité"</span>   <span class="p">:</span> <span class="p">{</span><span class="s2">"statut"</span><span class="p">:</span> <span class="s2">"OK"</span><span class="p">,</span> <span class="s2">"message"</span><span class="p">:</span> <span class="s2">"Tous les types sont conformes"</span><span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">"duree_s"</span>    <span class="p">:</span> <span class="mf">0.12</span><span class="p">,</span>
+    <span class="s2">"export_csv"</span> <span class="p">:</span> <span class="s2">"./EXPORTS/transactions_journalieres_20260615_060001.csv"</span>
+    <span class="c1"># export_csv = None si au moins un contrôle est en ECHEC</span>
+<span class="p">}</span></pre></div>
+      </div>
+      <div class="code-wrap"><div class="code-label">Python</div>
+        <div class="highlight"><pre><span class="k">if</span> <span class="n">rapport</span><span class="p">[</span><span class="s2">"export_csv"</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Données exportées : </span><span class="si">{</span><span class="n">rapport</span><span class="p">[</span><span class="s1">'export_csv'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Pas d'export — vérifier les erreurs dans le journal"</span><span class="p">)</span></pre></div>
+      </div>
+    </div>
+
+    <hr/>
+
+    <!-- SECTION 7 -->
+    <div class="section" id="s7">
+      <div class="section-heading">
+        <div class="step-badge">7</div>
+        <h2>Étape 4 — Journaliser avec log()</h2>
+      </div>
+      <p>Après chaque appel à <code>run_dq()</code>, appelle <code>log()</code> pour enregistrer le résultat dans le journal CSV cumulatif.</p>
+      <div class="code-wrap"><div class="code-label">Python</div>
+        <div class="highlight"><pre><span class="n">log</span><span class="p">(</span>
+    <span class="n">nom</span>        <span class="o">=</span> <span class="s2">"transactions_journalieres"</span><span class="p">,</span>  <span class="c1"># Nom de l'extraction</span>
+    <span class="n">rapport</span>    <span class="o">=</span> <span class="n">rapport</span><span class="p">,</span>                      <span class="c1"># Rapport retourné par run_dq()</span>
+    <span class="n">frequence</span>  <span class="o">=</span> <span class="s2">"Quotidien"</span><span class="p">,</span>                  <span class="c1"># Fréquence du traitement</span>
+    <span class="n">date_debut</span> <span class="o">=</span> <span class="n">hier</span><span class="p">,</span>                         <span class="c1"># Début des données</span>
+    <span class="n">date_fin</span>   <span class="o">=</span> <span class="n">hier</span>                          <span class="c1"># Fin des données</span>
+<span class="p">)</span></pre></div>
+      </div>
+      <p>Valeurs possibles pour <code>frequence</code> : <code>"Quotidien"</code>, <code>"Hebdomadaire"</code>, <code>"Mensuel"</code>, <code>"Trimestriel"</code>, <code>"Semestriel"</code>.</p>
+
+      <h3>Ce qui est enregistré dans le journal</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Colonne</th><th>Contenu</th><th>Exemple</th></tr></thead>
+          <tbody>
+            <tr><td>Execution_Date</td><td>Horodatage de l'exécution</td><td>2026-06-15T06:00:01</td></tr>
+            <tr><td>User</td><td>Identifiant système</td><td>alex</td></tr>
+            <tr><td>Extraction</td><td>Nom de la requête</td><td>transactions_journalieres</td></tr>
+            <tr><td>Frequency</td><td>Fréquence du traitement</td><td>Quotidien</td></tr>
+            <tr><td>Data_Begin</td><td>Début des données</td><td>2026-06-14</td></tr>
+            <tr><td>Data_End</td><td>Fin des données</td><td>2026-06-14</td></tr>
+            <tr><td>Row_Number</td><td>Nombre de lignes extraites</td><td>250</td></tr>
+            <tr><td>Duration(s)</td><td>Durée du traitement</td><td>0.12</td></tr>
+            <tr><td>Status</td><td>Résultat global</td><td>Good / Bad</td></tr>
+            <tr><td>Export_CSV</td><td>Chemin du fichier exporté</td><td>./EXPORTS/transactions_...csv</td></tr>
+            <tr><td>Error_Reason</td><td>Détail des erreurs</td><td>Cohérence: Colonne vide ['X']</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <hr/>
+
+    <!-- SECTION 8 -->
+    <div class="section" id="s8">
+      <div class="section-heading">
+        <div class="step-badge">8</div>
+        <h2>Étape 5 — Consulter les résultats</h2>
+      </div>
+
+      <h3>Lire le journal dans Jupyter</h3>
+      <div class="code-wrap"><div class="code-label">Python</div>
+        <div class="highlight"><pre><span class="n">df_journal</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">"./JOURNAL/journal_dq.csv"</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">";"</span><span class="p">)</span>
+<span class="n">df_journal</span></pre></div>
+      </div>
+
+      <h3>Filtrer les exécutions en erreur</h3>
+      <div class="code-wrap"><div class="code-label">Python</div>
+        <div class="highlight"><pre><span class="n">df_journal</span><span class="p">[</span><span class="n">df_journal</span><span class="p">[</span><span class="s2">"Status"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"Bad"</span><span class="p">]</span></pre></div>
+      </div>
+
+      <h3>Voir les exports réalisés</h3>
+      <div class="code-wrap"><div class="code-label">Python</div>
+        <div class="highlight"><pre><span class="n">df_journal</span><span class="p">[</span><span class="n">df_journal</span><span class="p">[</span><span class="s2">"Export_CSV"</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()][[</span><span class="s2">"Extraction"</span><span class="p">,</span> <span class="s2">"Execution_Date"</span><span class="p">,</span> <span class="s2">"Row_Number"</span><span class="p">,</span> <span class="s2">"Export_CSV"</span><span class="p">]]</span></pre></div>
+      </div>
+
+      <h3>Lire un fichier exporté</h3>
+      <div class="code-wrap"><div class="code-label">Python</div>
+        <div class="highlight"><pre><span class="n">df_export</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">"./EXPORTS/transactions_journalieres_20260615.csv"</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">";"</span><span class="p">)</span>
+<span class="n">df_export</span><span class="o">.</span><span class="n">head</span><span class="p">()</span></pre></div>
+      </div>
+
+      <h3>Lire les logs texte</h3>
+      <div class="code-wrap"><div class="code-label">Python</div>
+        <div class="highlight"><pre><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">"./JOURNAL/sgci_dq.log"</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span></pre></div>
+      </div>
+    </div>
+
+    <hr/>
+
+    <!-- SECTION 9 -->
+    <div class="section" id="s9">
+      <div class="section-heading">
+        <div class="step-badge">9</div>
+        <h2>Template pour une nouvelle requête</h2>
+      </div>
+      <p>Copie ce bloc et adapte les paramètres. C'est tout ce dont tu as besoin.</p>
+      <div class="code-wrap"><div class="code-label">Template</div>
+        <div class="highlight"><pre><span class="c1"># ── Paramètres à adapter ──────────────────────────────────────────────────────</span>
+<span class="n">NOM_EXTRACTION</span> <span class="o">=</span> <span class="s2">"nom_de_ma_requete"</span>   <span class="c1"># nom court, sans espaces si possible</span>
+<span class="n">MIN_LIGNES</span>     <span class="o">=</span> <span class="mi">50</span>                    <span class="c1"># volume minimum attendu</span>
+<span class="n">MAX_LIGNES</span>     <span class="o">=</span> <span class="mi">5000</span>                  <span class="c1"># volume maximum attendu</span>
+<span class="n">COL_DATE</span>       <span class="o">=</span> <span class="s2">"MA_COLONNE_DATE"</span>     <span class="c1"># colonne de date dans ta table</span>
+<span class="n">DATE_DEBUT</span>     <span class="o">=</span> <span class="n">hier</span>                  <span class="c1"># début de la période (hier pour J-1)</span>
+<span class="n">DATE_FIN</span>       <span class="o">=</span> <span class="n">hier</span>                  <span class="c1"># fin de la période</span>
+<span class="n">TYPES_ATTENDUS</span> <span class="o">=</span> <span class="p">{</span>                     <span class="c1"># types de tes colonnes importantes</span>
+    <span class="s2">"MA_CLE"</span>      <span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="s2">"MON_MONTANT"</span> <span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="s2">"MON_ENTIER"</span>  <span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">FREQUENCE</span>      <span class="o">=</span> <span class="s2">"Quotidien"</span>           <span class="c1"># Quotidien / Hebdomadaire / Mensuel</span>
+
+<span class="c1"># ── 1. Extraction ─────────────────────────────────────────────────────────────</span>
+<span class="c1"># En production :</span>
+<span class="c1"># df = extraire("""</span>
+<span class="c1">#     SELECT col1, col2, MA_COLONNE_DATE, ...</span>
+<span class="c1">#     FROM SGCI_DB.MA_TABLE</span>
+<span class="c1">#     WHERE MA_COLONNE_DATE = CURRENT_DATE - 1</span>
+<span class="c1"># """, NOM_EXTRACTION)</span>
+
+<span class="c1"># En démo :</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">mon_dataframe_simulé</span>
+
+<span class="c1"># ── 2. Contrôles DQ + export CSV si OK ───────────────────────────────────────</span>
+<span class="n">rapport</span> <span class="o">=</span> <span class="n">run_dq</span><span class="p">(</span>
+    <span class="n">df</span>             <span class="o">=</span> <span class="n">df</span><span class="p">,</span>
+    <span class="n">nom</span>            <span class="o">=</span> <span class="n">NOM_EXTRACTION</span><span class="p">,</span>
+    <span class="n">min_lignes</span>     <span class="o">=</span> <span class="n">MIN_LIGNES</span><span class="p">,</span>
+    <span class="n">max_lignes</span>     <span class="o">=</span> <span class="n">MAX_LIGNES</span><span class="p">,</span>
+    <span class="n">col_date</span>       <span class="o">=</span> <span class="n">COL_DATE</span><span class="p">,</span>
+    <span class="n">date_debut</span>     <span class="o">=</span> <span class="n">DATE_DEBUT</span><span class="p">,</span>
+    <span class="n">date_fin</span>       <span class="o">=</span> <span class="n">DATE_FIN</span><span class="p">,</span>
+    <span class="n">types_attendus</span> <span class="o">=</span> <span class="n">TYPES_ATTENDUS</span>
+<span class="p">)</span>
+
+<span class="c1"># ── 3. Journalisation ─────────────────────────────────────────────────────────</span>
+<span class="n">log</span><span class="p">(</span><span class="n">NOM_EXTRACTION</span><span class="p">,</span> <span class="n">rapport</span><span class="p">,</span> <span class="n">FREQUENCE</span><span class="p">,</span> <span class="n">DATE_DEBUT</span><span class="p">,</span> <span class="n">DATE_FIN</span><span class="p">)</span></pre></div>
+      </div>
+    </div>
+
+    <hr/>
+
+    <!-- SECTION 10 -->
+    <div class="section" id="s10">
+      <div class="section-heading">
+        <div class="step-badge">?</div>
+        <h2>Questions fréquentes</h2>
+      </div>
+
+      <div class="faq-item open">
+        <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Puis-je utiliser ce framework pour des extractions hebdomadaires ou mensuelles ?</div>
+        <div class="faq-a">
+          <p>Oui. Il suffit d'adapter <code>date_debut</code> et <code>date_fin</code>. Exemple pour une extraction mensuelle de janvier 2026 :</p>
+          <div class="highlight"><pre><span class="n">date_debut</span> <span class="o">=</span> <span class="n">date</span><span class="p">(</span><span class="mi">2026</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">date_fin</span>   <span class="o">=</span> <span class="n">date</span><span class="p">(</span><span class="mi">2026</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">31</span><span class="p">)</span>
+<span class="n">frequence</span>  <span class="o">=</span> <span class="s2">"Mensuel"</span></pre></div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Que faire si une dimension est en ECHEC ?</div>
+        <div class="faq-a">
+          <p>Commence par regarder le message d'erreur dans la console ou dans <code>rapport["controles"]</code>. Selon la dimension :</p>
+          <ul>
+            <li><strong>Unicité</strong> : vérifier si la requête SQL contient une jointure qui multiplie les lignes. Ajouter un <code>DISTINCT</code> ou revoir les conditions de jointure.</li>
+            <li><strong>Complétude</strong> : vérifier si le batch source a bien tourné. Si 0 lignes, la table n'est peut-être pas encore alimentée.</li>
+            <li><strong>Fraîcheur</strong> : vérifier le filtre de date dans la requête SQL. La table a peut-être un décalage de fuseau horaire.</li>
+            <li><strong>Cohérence</strong> : la colonne vide existe-t-elle dans la table source ? Vérifier le nom exact et la jointure.</li>
+            <li><strong>Validité</strong> : Teradata peut retourner des types inattendus. Convertir explicitement : <code>df["MVT_ID"] = df["MVT_ID"].astype(int)</code>.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Peut-on avoir un export partiel (seulement les lignes valides) ?</div>
+        <div class="faq-a">
+          <p>Non, par choix de conception. Le framework exporte soit <strong>tout</strong> le DataFrame (si toutes les dimensions sont OK), soit <strong>rien</strong>. Cela garantit qu'un fichier présent dans <code>EXPORTS/</code> est toujours 100% validé.</p>
+          <p>Si tu veux un export partiel (ex : exclure les doublons), déduplique d'abord le DataFrame avant de le passer à <code>run_dq()</code>.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Comment ajouter un nouveau contrôle ?</div>
+        <div class="faq-a">
+          <p>Crée une fonction qui retourne <code>{"statut": "OK"/"ECHEC", "message": "..."}</code>, puis ajoute-la dans le dictionnaire <code>controles</code> dans <code>run_dq()</code> :</p>
+          <div class="highlight"><pre><span class="k">def</span> <span class="nf">check_mon_controle</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+    <span class="c1"># ... ta logique</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"statut"</span><span class="p">:</span> <span class="s2">"OK"</span><span class="p">,</span> <span class="s2">"message"</span><span class="p">:</span> <span class="s2">"Tout va bien"</span><span class="p">}</span>
+
+<span class="c1"># Dans run_dq() :</span>
+<span class="n">controles</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"Unicité"</span>      <span class="p">:</span> <span class="n">check_unicite</span><span class="p">(</span><span class="n">df</span><span class="p">),</span>
+    <span class="s2">"Complétude"</span>   <span class="p">:</span> <span class="n">check_completude</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">min_lignes</span><span class="p">,</span> <span class="n">max_lignes</span><span class="p">),</span>
+    <span class="s2">"Fraîcheur"</span>    <span class="p">:</span> <span class="n">check_fraicheur</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">col_date</span><span class="p">,</span> <span class="n">date_debut</span><span class="p">,</span> <span class="n">date_fin</span><span class="p">),</span>
+    <span class="s2">"Cohérence"</span>    <span class="p">:</span> <span class="n">check_coherence</span><span class="p">(</span><span class="n">df</span><span class="p">),</span>
+    <span class="s2">"Validité"</span>     <span class="p">:</span> <span class="n">check_validite</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">types_attendus</span><span class="p">),</span>
+    <span class="s2">"Mon contrôle"</span> <span class="p">:</span> <span class="n">check_mon_controle</span><span class="p">(</span><span class="n">df</span><span class="p">),</span>  <span class="c1"># ← ajout ici</span>
+<span class="p">}</span></pre></div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Où trouver les fichiers exportés si j'oublie le chemin ?</div>
+        <div class="faq-a">
+          <p>Le chemin est toujours dans <code>rapport["export_csv"]</code> et dans la colonne <code>Export_CSV</code> du journal :</p>
+          <div class="highlight"><pre><span class="n">df_journal</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">"./JOURNAL/journal_dq.csv"</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">";"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df_journal</span><span class="p">[</span><span class="s2">"Export_CSV"</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span></pre></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center; padding: 32px 0 16px; font-size: 12px; color: var(--text-muted);">
+      SGCI Data Engineering · Guide Utilisateur · <strong style="color: var(--text-dim);">Niamien Alexandre</strong>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<script>
+  // Active nav link on scroll
+  const sections = document.querySelectorAll('.section');
+  const navLinks = document.querySelectorAll('.nav-link');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navLinks.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`.nav-link[href="#${id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
