@@ -1,0 +1,18 @@
+username,kpi
+depot,Encours de dépôts Retail montant
+depot,Encours de dépôts Retail Budget
+depot,Encours de dépôts corporate montant
+depot,Encours de dépôts corporate Budget
+credit,Encours de crédit Retail montant
+credit,Encours de crédit Retail Budget
+credit,Encours de crédit corporate montant
+credit,Encours de crédit corporate Budget
+taux,Taux moyen de crédit retail
+taux,Taux moyen de crédit corporate
+taux,Taux moyen de crédit global
+taux,Taux moyen de dépôt retail
+taux,Taux moyen de dépôt corporate
+taux,Taux moyen de dépôt global
+rh,Taux de chaises vides par direction
+rh,Taux d'absentéisme par direction
+rh,Taux de turn over par direction
