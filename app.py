@@ -2,10 +2,13 @@
 Dashboard KPI — Suivi des indicateurs (modèle SGCI)
 ====================================================
 
+Stockage 100% SQLite (kpi_data.db). Tables : referentiel, users, saisies, historique.
+L'affectation est portée par la colonne « username » du référentiel
+(un indicateur = un responsable). Plus de fichier/table « affectations ».
+
 Rôles :
-  - saisie : formulaires (KPIs affectés) + tableau de bord + historique de SON périmètre
-  - admin  : vue « Pilotage » unique (Vue d'ensemble + Analyse + Historique en onglets)
-             + Référentiel + Comptes
+  - saisie : formulaires de SES indicateurs + tableau de bord + historique
+  - admin  : vue « Pilotage » (Vue d'ensemble + Analyse + Historique + Saisie) + Référentiel + Comptes
   - dg     : vue dédiée (à venir)
 
 Lancement :
@@ -13,7 +16,6 @@ Lancement :
     streamlit run app.py
 """
 
-import csv
 import hashlib
 import sqlite3
 from datetime import datetime
@@ -27,9 +29,8 @@ import streamlit as st
 # --------------------------------------------------------------------------- #
 APP_DIR = Path(__file__).parent
 DB_PATH = APP_DIR / "kpi_data.db"
-REFERENTIEL_PATH = APP_DIR / "referentiel_kpi.csv"
-USERS_PATH = APP_DIR / "users.csv"
-AFFECT_PATH = APP_DIR / "affectations.csv"
+REFERENTIEL_PATH = APP_DIR / "referentiel_kpi.csv"  # amorçage initial
+USERS_PATH = APP_DIR / "users.csv"                  # amorçage initial
 
 SALT = "SGCI-KPI-2026"  # À CHANGER en production (st.secrets / variable d'env.)
 
@@ -41,7 +42,7 @@ st.set_page_config(page_title="Dashboard KPI", page_icon="📊", layout="wide")
 
 
 # --------------------------------------------------------------------------- #
-# Habillage (CSS) + composants
+# Habillage
 # --------------------------------------------------------------------------- #
 def inject_css():
     st.markdown(
@@ -50,44 +51,31 @@ def inject_css():
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         html, body, [class*="css"], .stMarkdown, .stText { font-family:'Inter',system-ui,Segoe UI,sans-serif; }
         .block-container { padding-top:1.4rem; padding-bottom:2rem; max-width:1200px; }
-
-        .app-header{
-            background:linear-gradient(135deg,#C8102E 0%,#7d0a1c 100%);
-            color:#fff;border-radius:16px;padding:22px 28px;margin-bottom:22px;
-            box-shadow:0 8px 22px rgba(200,16,46,.22);
-        }
+        .app-header{ background:linear-gradient(135deg,#C8102E 0%,#7d0a1c 100%); color:#fff;
+            border-radius:16px;padding:22px 28px;margin-bottom:22px;box-shadow:0 8px 22px rgba(200,16,46,.22);}
         .app-header h1{font-size:1.5rem;margin:0;font-weight:800;color:#fff;letter-spacing:-.3px;}
         .app-header p{margin:.3rem 0 0;opacity:.92;font-size:.92rem;color:#fff;}
-
-        div[data-testid="stMetric"]{
-            background:#fff;border:1px solid #ECEEF3;border-left:4px solid #C8102E;
-            border-radius:14px;padding:14px 18px;box-shadow:0 1px 3px rgba(16,24,40,.06);
-        }
+        div[data-testid="stMetric"]{ background:#fff;border:1px solid #ECEEF3;border-left:4px solid #C8102E;
+            border-radius:14px;padding:14px 18px;box-shadow:0 1px 3px rgba(16,24,40,.06);}
         div[data-testid="stMetricLabel"] p{font-size:.78rem;color:#6B7280;font-weight:600;
             text-transform:uppercase;letter-spacing:.4px;}
         div[data-testid="stMetricValue"]{font-size:1.4rem;font-weight:800;color:#1F2430;}
-
         section[data-testid="stSidebar"]{background:#14161D;}
         section[data-testid="stSidebar"] *{color:#E5E7EB;}
         section[data-testid="stSidebar"] h1{color:#fff;}
         .user-badge{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
             border-radius:12px;padding:12px 14px;margin:6px 0 4px;}
         .user-badge .nm{font-weight:700;font-size:.98rem;color:#fff;}
-        .user-badge .rl{font-size:.78rem;color:#C8102E;font-weight:600;
-            background:rgba(200,16,46,.16);padding:2px 8px;border-radius:20px;display:inline-block;margin-top:4px;}
-
-        .stButton>button, .stDownloadButton>button,
-        div[data-testid="stFormSubmitButton"]>button{ border-radius:10px;font-weight:600; }
-
+        .user-badge .rl{font-size:.78rem;color:#C8102E;font-weight:600;background:rgba(200,16,46,.16);
+            padding:2px 8px;border-radius:20px;display:inline-block;margin-top:4px;}
+        .stButton>button, .stDownloadButton>button, div[data-testid="stFormSubmitButton"]>button{
+            border-radius:10px;font-weight:600; }
         hr{margin:1.1rem 0;}
         .stDataFrame{border-radius:12px;overflow:hidden;border:1px solid #ECEEF3;}
         .section-title{font-size:1.05rem;font-weight:700;color:#1F2430;margin:.2rem 0 .6rem;}
-
-        .soon-card{max-width:560px;margin:3rem auto;text-align:center;background:#fff;
-            border:1px dashed #C8102E;border-radius:18px;padding:46px 30px;
-            box-shadow:0 8px 24px rgba(16,24,40,.06);}
-        .soon-card .emoji{font-size:3rem;}
-        .soon-card h2{margin:.4rem 0 .2rem;color:#1F2430;font-weight:800;}
+        .soon-card{max-width:560px;margin:3rem auto;text-align:center;background:#fff;border:1px dashed #C8102E;
+            border-radius:18px;padding:46px 30px;box-shadow:0 8px 24px rgba(16,24,40,.06);}
+        .soon-card .emoji{font-size:3rem;} .soon-card h2{margin:.4rem 0 .2rem;color:#1F2430;font-weight:800;}
         .soon-card p{color:#6B7280;margin:0;}
         </style>
         """,
@@ -96,48 +84,8 @@ def inject_css():
 
 
 def header(titre, sous_titre=""):
-    st.markdown(
-        f'<div class="app-header"><h1>{titre}</h1>'
-        f'{f"<p>{sous_titre}</p>" if sous_titre else ""}</div>',
-        unsafe_allow_html=True,
-    )
-
-
-# --------------------------------------------------------------------------- #
-# Sécurité / comptes / affectations
-# --------------------------------------------------------------------------- #
-def hash_mdp(mdp: str) -> str:
-    return hashlib.sha256((SALT + mdp).encode("utf-8")).hexdigest()
-
-
-def charger_users() -> pd.DataFrame:
-    with get_conn() as conn:
-        df = pd.read_sql_query("SELECT username, password_hash, nom, role FROM users", conn)
-    return df.fillna("")
-
-
-def ajouter_user(username, mdp, nom, role):
-    with get_conn() as conn:
-        conn.execute("INSERT INTO users (username, password_hash, nom, role) VALUES (?, ?, ?, ?)",
-                     (username, hash_mdp(mdp), nom, role))
-
-
-def charger_affectations() -> pd.DataFrame:
-    with get_conn() as conn:
-        return pd.read_sql_query("SELECT username, kpi FROM affectations", conn)
-
-
-def definir_affectations(username, kpis):
-    with get_conn() as conn:
-        conn.execute("DELETE FROM affectations WHERE username = ?", (username,))
-        conn.executemany("INSERT OR IGNORE INTO affectations (username, kpi) VALUES (?, ?)",
-                         [(username, k) for k in kpis])
-
-
-def kpis_autorises(auth, ref, affect) -> list:
-    if auth["role"] in ("admin", "dg"):
-        return ref["kpi"].tolist()
-    return affect.loc[affect["username"] == auth["username"], "kpi"].tolist()
+    st.markdown(f'<div class="app-header"><h1>{titre}</h1>'
+                f'{f"<p>{sous_titre}</p>" if sous_titre else ""}</div>', unsafe_allow_html=True)
 
 
 # --------------------------------------------------------------------------- #
@@ -148,7 +96,6 @@ def get_conn():
 
 
 def _seed_depuis_csv(conn, table, csv_path, colonnes):
-    """Amorce une table SQLite depuis un CSV, uniquement si la table est vide."""
     vide = conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0] == 0
     if vide and csv_path.exists():
         df = pd.read_csv(csv_path, dtype=str).fillna("")
@@ -160,75 +107,74 @@ def _seed_depuis_csv(conn, table, csv_path, colonnes):
 def init_db():
     with get_conn() as conn:
         conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS saisies (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                kpi TEXT NOT NULL, periode TEXT NOT NULL, periode_sort TEXT NOT NULL,
-                valeur REAL, commentaire TEXT, saisi_par TEXT, date_saisie TEXT,
-                UNIQUE (kpi, periode)
-            )
-            """
-        )
+            """CREATE TABLE IF NOT EXISTS saisies (
+                   id INTEGER PRIMARY KEY AUTOINCREMENT,
+                   kpi TEXT NOT NULL, periode TEXT NOT NULL, periode_sort TEXT NOT NULL,
+                   valeur REAL, commentaire TEXT, saisi_par TEXT, date_saisie TEXT,
+                   UNIQUE (kpi, periode))""")
         conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS historique (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                kpi TEXT NOT NULL, periode TEXT NOT NULL, periode_sort TEXT,
-                valeur REAL, commentaire TEXT, saisi_par TEXT, date_saisie TEXT
-            )
-            """
-        )
+            """CREATE TABLE IF NOT EXISTS historique (
+                   id INTEGER PRIMARY KEY AUTOINCREMENT,
+                   kpi TEXT NOT NULL, periode TEXT NOT NULL, periode_sort TEXT,
+                   valeur REAL, commentaire TEXT, saisi_par TEXT, date_saisie TEXT)""")
         conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS referentiel (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                categorie TEXT, kpi TEXT UNIQUE, periodicite TEXT,
-                direction TEXT, contact TEXT
-            )
-            """
-        )
+            """CREATE TABLE IF NOT EXISTS referentiel (
+                   id INTEGER PRIMARY KEY AUTOINCREMENT,
+                   categorie TEXT, kpi TEXT UNIQUE, periodicite TEXT,
+                   direction TEXT, contact TEXT, username TEXT)""")
         conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS users (
-                username TEXT PRIMARY KEY, password_hash TEXT, nom TEXT, role TEXT
-            )
-            """
-        )
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS affectations (
-                username TEXT, kpi TEXT, UNIQUE (username, kpi)
-            )
-            """
-        )
-        # Migration douce : reprise des CSV existants au 1er lancement
+            """CREATE TABLE IF NOT EXISTS users (
+                   username TEXT PRIMARY KEY, password_hash TEXT, nom TEXT, role TEXT)""")
+
+        # Compat : colonne username si absente sur une base antérieure
+        cols = [r[1] for r in conn.execute("PRAGMA table_info(referentiel)").fetchall()]
+        if "username" not in cols:
+            conn.execute("ALTER TABLE referentiel ADD COLUMN username TEXT")
+
+        # Amorçage initial depuis CSV (si tables vides)
         _seed_depuis_csv(conn, "referentiel", REFERENTIEL_PATH,
-                         ["categorie", "kpi", "periodicite", "direction", "contact"])
+                         ["categorie", "kpi", "periodicite", "direction", "contact", "username"])
         _seed_depuis_csv(conn, "users", USERS_PATH,
                          ["username", "password_hash", "nom", "role"])
-        _seed_depuis_csv(conn, "affectations", AFFECT_PATH, ["username", "kpi"])
+
+        # Migration d'une ancienne colonne 'affectations' (pipe) -> username (1er responsable)
+        if "affectations" in cols:
+            for rid, a in conn.execute(
+                "SELECT id, affectations FROM referentiel "
+                "WHERE (username IS NULL OR username='') AND affectations IS NOT NULL "
+                "AND affectations<>''").fetchall():
+                premier = str(a).split("|")[0].strip()
+                if premier:
+                    conn.execute("UPDATE referentiel SET username=? WHERE id=?", (premier, rid))
+
+        # Migration d'une ancienne table 'affectations' -> username, puis suppression
+        if conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='affectations'").fetchone():
+            deja = conn.execute("SELECT COUNT(*) FROM referentiel "
+                                "WHERE username IS NOT NULL AND username<>''").fetchone()[0]
+            if deja == 0:
+                conn.execute(
+                    """UPDATE referentiel SET username=(
+                           SELECT a.username FROM affectations a WHERE a.kpi=referentiel.kpi LIMIT 1)
+                       WHERE EXISTS (SELECT 1 FROM affectations a WHERE a.kpi=referentiel.kpi)""")
+            conn.execute("DROP TABLE affectations")
+
+        conn.execute("UPDATE referentiel SET username='' WHERE username IS NULL")
 
 
 def enregistrer_saisie(kpi, periode, periode_sort, valeur, commentaire, saisi_par):
     ts = datetime.now().strftime("%Y-%m-%d %H:%M")
     with get_conn() as conn:
         conn.execute(
-            """
-            INSERT INTO saisies (kpi, periode, periode_sort, valeur, commentaire, saisi_par, date_saisie)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT(kpi, periode) DO UPDATE SET
-                valeur=excluded.valeur, commentaire=excluded.commentaire,
-                saisi_par=excluded.saisi_par, date_saisie=excluded.date_saisie
-            """,
-            (kpi, periode, periode_sort, valeur, commentaire, saisi_par, ts),
-        )
+            """INSERT INTO saisies (kpi, periode, periode_sort, valeur, commentaire, saisi_par, date_saisie)
+               VALUES (?, ?, ?, ?, ?, ?, ?)
+               ON CONFLICT(kpi, periode) DO UPDATE SET
+                   valeur=excluded.valeur, commentaire=excluded.commentaire,
+                   saisi_par=excluded.saisi_par, date_saisie=excluded.date_saisie""",
+            (kpi, periode, periode_sort, valeur, commentaire, saisi_par, ts))
         conn.execute(
-            """
-            INSERT INTO historique (kpi, periode, periode_sort, valeur, commentaire, saisi_par, date_saisie)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            """,
-            (kpi, periode, periode_sort, valeur, commentaire, saisi_par, ts),
-        )
+            """INSERT INTO historique (kpi, periode, periode_sort, valeur, commentaire, saisi_par, date_saisie)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            (kpi, periode, periode_sort, valeur, commentaire, saisi_par, ts))
 
 
 def lire_saisies():
@@ -249,27 +195,62 @@ def etat_courant_depuis_historique():
 
 
 # --------------------------------------------------------------------------- #
-# Référentiel & utilitaires
+# Comptes & référentiel
 # --------------------------------------------------------------------------- #
+def hash_mdp(mdp: str) -> str:
+    return hashlib.sha256((SALT + mdp).encode("utf-8")).hexdigest()
+
+
+def charger_users() -> pd.DataFrame:
+    with get_conn() as conn:
+        return pd.read_sql_query("SELECT username, password_hash, nom, role FROM users", conn).fillna("")
+
+
+def ajouter_user(username, mdp, nom, role):
+    with get_conn() as conn:
+        conn.execute("INSERT INTO users (username, password_hash, nom, role) VALUES (?, ?, ?, ?)",
+                     (username, hash_mdp(mdp), nom, role))
+
+
 @st.cache_data
 def charger_referentiel():
     with get_conn() as conn:
         ref = pd.read_sql_query(
-            "SELECT categorie, kpi, periodicite, direction, contact FROM referentiel ORDER BY id", conn)
+            "SELECT categorie, kpi, periodicite, direction, contact, username "
+            "FROM referentiel ORDER BY id", conn)
     ref = ref.fillna("")
     ref["kpi"] = ref["kpi"].str.strip()
     return ref
 
 
-def ajouter_kpi(categorie, kpi, periodicite, direction, contact=""):
+def ajouter_kpi(categorie, kpi, periodicite, direction, contact="", username=""):
     with get_conn() as conn:
         conn.execute(
-            "INSERT INTO referentiel (categorie, kpi, periodicite, direction, contact) "
-            "VALUES (?, ?, ?, ?, ?)",
-            (categorie, kpi, periodicite, direction, contact))
-    charger_referentiel.clear()  # invalide le cache
+            "INSERT INTO referentiel (categorie, kpi, periodicite, direction, contact, username) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
+            (categorie, kpi, periodicite, direction, contact, username))
+    charger_referentiel.clear()
 
 
+def affecter_kpis(username, kpis):
+    """Affecte un ensemble de KPIs à un utilisateur (un KPI = un responsable)."""
+    with get_conn() as conn:
+        conn.execute("UPDATE referentiel SET username='' WHERE username = ?", (username,))
+        if kpis:
+            conn.executemany("UPDATE referentiel SET username = ? WHERE kpi = ?",
+                             [(username, k) for k in kpis])
+    charger_referentiel.clear()
+
+
+def kpis_autorises(auth, ref) -> list:
+    if auth["role"] in ("admin", "dg"):
+        return ref["kpi"].tolist()
+    return ref.loc[ref["username"] == auth["username"], "kpi"].tolist()
+
+
+# --------------------------------------------------------------------------- #
+# Utilitaires
+# --------------------------------------------------------------------------- #
 def type_kpi(nom: str) -> str:
     n = nom.lower()
     if any(m in n for m in ("taux", "pourcentage", "%", "disponibilité")):
@@ -305,10 +286,8 @@ def construire_periode(periodicite, annee, mois_idx=None, trimestre=None):
 def page_login(users):
     _, mid, _ = st.columns([1, 1.4, 1])
     with mid:
-        st.markdown(
-            '<div class="app-header" style="text-align:center">'
-            '<h1>📊 Dashboard KPI</h1><p>Suivi des indicateurs de pilotage</p></div>',
-            unsafe_allow_html=True)
+        st.markdown('<div class="app-header" style="text-align:center"><h1>📊 Dashboard KPI</h1>'
+                    '<p>Suivi des indicateurs de pilotage</p></div>', unsafe_allow_html=True)
         with st.form("login"):
             u = st.text_input("Identifiant")
             p = st.text_input("Mot de passe", type="password")
@@ -324,13 +303,12 @@ def page_login(users):
 
 
 # --------------------------------------------------------------------------- #
-# PAGE : Saisie
+# CORPS : Saisie
 # --------------------------------------------------------------------------- #
 def corps_saisie(ref_user, auth, prefix="sa"):
     if ref_user.empty:
         st.info("Aucun KPI ne vous est affecté. Contactez l'administrateur.")
         return
-
     periodicites = sorted(ref_user["periodicite"].unique())
     c0, c3, c4 = st.columns(3)
     periodicite = c0.selectbox("Périodicité", periodicites, key=f"{prefix}_periodicite")
@@ -363,7 +341,6 @@ def corps_saisie(ref_user, auth, prefix="sa"):
                         help=f"Direction : {row['direction']}")
         commentaire = st.text_area("Commentaire (optionnel)", height=70, key=f"{prefix}_comm")
         submit = st.form_submit_button("💾 Enregistrer", type="primary")
-
     if submit:
         n = 0
         for kpi, val in valeurs.items():
@@ -380,7 +357,7 @@ def page_saisie(ref_user, auth):
 
 
 # --------------------------------------------------------------------------- #
-# CORPS : Analyse (tableau de bord)  — utilisé seul ou dans la vue Pilotage
+# CORPS : Analyse (tableau de bord)
 # --------------------------------------------------------------------------- #
 def corps_dashboard(ref_user, auth, prefix="db"):
     if ref_user.empty:
@@ -470,7 +447,6 @@ def corps_historique(ref_user, auth, prefix="hi"):
     doms = f1.multiselect("Domaine(s)", sorted(hist["categorie"].unique()), key=f"{prefix}_doms")
     auteurs = f2.multiselect("Contributeur(s)", sorted(hist["saisi_par"].dropna().unique()), key=f"{prefix}_aut")
     periodes = f3.multiselect("Période(s)", sorted(hist["periode"].unique()), key=f"{prefix}_per")
-
     vue = hist.copy()
     if doms:
         vue = vue[vue["categorie"].isin(doms)]
@@ -488,8 +464,7 @@ def corps_historique(ref_user, auth, prefix="hi"):
         "Valeur": [formater(v, k) for v, k in zip(vue["valeur"], vue["kpi"])],
         "Saisi par": vue["saisi_par"], "Commentaire": vue["commentaire"].fillna(""),
     })
-    st.markdown(f'<div class="section-title">{len(affichage)} enregistrement(s)</div>',
-                unsafe_allow_html=True)
+    st.markdown(f'<div class="section-title">{len(affichage)} enregistrement(s)</div>', unsafe_allow_html=True)
     st.dataframe(affichage, use_container_width=True, hide_index=True)
     st.download_button("⬇️ Exporter l'historique (CSV)",
                        affichage.to_csv(index=False).encode("utf-8-sig"),
@@ -502,7 +477,7 @@ def page_historique(ref_user, auth):
 
 
 # --------------------------------------------------------------------------- #
-# CORPS : Vue d'ensemble (consolidée — tous les indicateurs, base historique)
+# CORPS : Vue d'ensemble (consolidée — tous les indicateurs)
 # --------------------------------------------------------------------------- #
 def corps_vue_ensemble(ref, prefix="ve"):
     etat = etat_courant_depuis_historique()
@@ -552,11 +527,9 @@ def corps_vue_ensemble(ref, prefix="ve"):
             s = data[data["kpi"] == kpi].sort_values("periode_sort")
             s_upto = s[s["periode_sort"] <= p_ref_sort]
             val = s_upto["valeur"].iloc[-1] if len(s_upto) else None
-            lignes.append({"KPI": kpi, "Direction": row["direction"],
-                           "Valeur": formater(val, kpi)})
+            lignes.append({"KPI": kpi, "Direction": row["direction"], "Valeur": formater(val, kpi)})
         renseignes = sum(1 for x in lignes if x["Valeur"] != "—")
-        with st.expander(f"{dom}  ·  {renseignes}/{len(lignes)} renseignés",
-                         expanded=(dom == domaines[0])):
+        with st.expander(f"{dom}  ·  {renseignes}/{len(lignes)} renseignés", expanded=(dom == domaines[0])):
             st.dataframe(pd.DataFrame(lignes), use_container_width=True, hide_index=True)
 
     st.divider()
@@ -573,7 +546,7 @@ def corps_vue_ensemble(ref, prefix="ve"):
 
 
 # --------------------------------------------------------------------------- #
-# PAGE : Pilotage (admin) — Vue d'ensemble + Analyse + Historique
+# PAGE : Pilotage (admin)
 # --------------------------------------------------------------------------- #
 def page_pilotage(ref, auth):
     header("Pilotage", "Vue consolidée, analyse, historique et saisie en un seul endroit")
@@ -593,74 +566,72 @@ def page_pilotage(ref, auth):
 # --------------------------------------------------------------------------- #
 def page_dg(auth):
     header("Direction Générale", "Espace dédié à la Direction Générale")
-    st.markdown(
-        '<div class="soon-card"><div class="emoji">🚧</div>'
-        '<h2>Bientôt disponible</h2>'
-        '<p>Cette vue est en cours de conception.</p></div>',
-        unsafe_allow_html=True)
+    st.markdown('<div class="soon-card"><div class="emoji">🚧</div><h2>Bientôt disponible</h2>'
+                '<p>Cette vue est en cours de conception.</p></div>', unsafe_allow_html=True)
 
 
 # --------------------------------------------------------------------------- #
 # PAGE : Référentiel (admin)
 # --------------------------------------------------------------------------- #
-def page_referentiel(ref):
-    header("Référentiel des KPIs", "Catalogue source des indicateurs")
+def page_referentiel(ref, users):
+    header("Référentiel des KPIs", "Catalogue des indicateurs et de leurs responsables")
     c1, c2, c3 = st.columns(3)
     c1.metric("Nombre de KPIs", ref.shape[0])
     c2.metric("Domaines", ref["categorie"].nunique())
     c3.metric("Directions", ref["direction"].nunique())
+
     cat = st.multiselect("Filtrer par domaine", sorted(ref["categorie"].unique()))
     vue = ref[ref["categorie"].isin(cat)] if cat else ref
     st.dataframe(vue, use_container_width=True, hide_index=True, column_config={
-        "categorie": "Domaine", "kpi": "KPI", "periodicite": "Périodicité",
-        "direction": "Direction", "contact": "Contact (email / matricule)"})
-    st.caption("Les indicateurs sont stockés en base. Ajoutez-en de nouveaux via le formulaire "
-               "ci-dessous (le contact se renseigne à la création).")
+        "categorie": "Domaine", "kpi": "KPI", "periodicite": "Périodicité", "direction": "Direction",
+        "contact": "Contact (email / matricule)", "username": "Responsable (compte)"})
 
     st.divider()
     st.markdown('<div class="section-title">➕ Ajouter un indicateur</div>', unsafe_allow_html=True)
     domaines = sorted(ref["categorie"].unique())
     directions = sorted(ref["direction"].unique())
+    comptes_saisie = ["(aucun)"] + users[users["role"] == "saisie"]["username"].tolist()
     with st.form("ajout_kpi"):
         kpi = st.text_input("Intitulé de l'indicateur")
         c1, c2 = st.columns(2)
         dom_sel = c1.selectbox("Domaine existant", domaines)
-        dom_new = c2.text_input("…ou nouveau domaine", placeholder="laisser vide pour utiliser la sélection")
+        dom_new = c2.text_input("…ou nouveau domaine", placeholder="laisser vide pour la sélection")
         c3, c4 = st.columns(2)
         dir_sel = c3.selectbox("Direction existante", directions)
-        dir_new = c4.text_input("…ou nouvelle direction", placeholder="laisser vide pour utiliser la sélection")
-        c5, c6 = st.columns(2)
+        dir_new = c4.text_input("…ou nouvelle direction", placeholder="laisser vide pour la sélection")
+        c5, c6, c7 = st.columns(3)
         periodicite = c5.selectbox("Périodicité", ["Mensuelle", "Trimestrielle"])
         contact = c6.text_input("Contact (email / matricule)")
+        responsable = c7.selectbox("Responsable (compte)", comptes_saisie)
         ok = st.form_submit_button("Ajouter l'indicateur", type="primary")
     if ok:
         categorie = dom_new.strip() or dom_sel
         direction = dir_new.strip() or dir_sel
+        username = "" if responsable == "(aucun)" else responsable
         if not kpi.strip():
             st.error("L'intitulé de l'indicateur est obligatoire.")
         elif kpi.strip() in ref["kpi"].values:
             st.error("Cet indicateur existe déjà dans le référentiel.")
         else:
-            ajouter_kpi(categorie, kpi.strip(), periodicite, direction, contact.strip())
+            ajouter_kpi(categorie, kpi.strip(), periodicite, direction, contact.strip(), username)
             st.success(f"Indicateur « {kpi.strip()} » ajouté au domaine « {categorie} ».")
             st.rerun()
 
 
 # --------------------------------------------------------------------------- #
-# PAGE : Comptes & affectations (admin)
+# PAGE : Comptes (admin)
 # --------------------------------------------------------------------------- #
-def page_comptes(ref, users, affect):
+def page_comptes(ref, users):
     header("Comptes & affectations", "Création des accès et attribution des KPIs")
 
-    nb = affect.groupby("username").size().rename("KPIs affectés")
-    recap = (users[["username", "nom", "role"]].merge(nb, on="username", how="left")
+    cnt = ref[ref["username"] != ""].groupby("username").size().rename("KPIs affectés")
+    recap = (users[["username", "nom", "role"]].merge(cnt, on="username", how="left")
              .fillna({"KPIs affectés": 0}))
     recap["KPIs affectés"] = recap["KPIs affectés"].astype(int)
     st.dataframe(recap, use_container_width=True, hide_index=True)
 
     st.divider()
-    st.markdown('<div class="section-title">➕ Créer un compte et affecter ses KPIs</div>',
-                unsafe_allow_html=True)
+    st.markdown('<div class="section-title">➕ Créer un compte et affecter ses KPIs</div>', unsafe_allow_html=True)
     filtre_dom_new = st.multiselect("Filtrer les KPIs par domaine (optionnel)",
                                     sorted(ref["categorie"].unique()), key="filtre_new")
     options_new = (ref[ref["categorie"].isin(filtre_dom_new)]["kpi"].tolist()
@@ -686,7 +657,7 @@ def page_comptes(ref, users, affect):
         else:
             ajouter_user(username.strip(), mdp, nom, role)
             if role == "saisie":
-                definir_affectations(username.strip(), kpis_new)
+                affecter_kpis(username.strip(), kpis_new)
             st.success(f"Compte « {username} » créé.")
             st.rerun()
 
@@ -698,7 +669,7 @@ def page_comptes(ref, users, affect):
         st.caption("Aucun compte de saisie à configurer.")
         return
     u_cible = st.selectbox("Utilisateur", saisie_users)
-    actuels = affect.loc[affect["username"] == u_cible, "kpi"].tolist()
+    actuels = ref.loc[ref["username"] == u_cible, "kpi"].tolist()
     filtre_dom = st.multiselect("Filtrer la liste par domaine (optionnel)",
                                 sorted(ref["categorie"].unique()), key="filtre_edit")
     options = (ref[ref["categorie"].isin(filtre_dom)]["kpi"].tolist()
@@ -708,7 +679,7 @@ def page_comptes(ref, users, affect):
         choix = st.multiselect("KPIs affectés", options, default=actuels)
         ok2 = st.form_submit_button("💾 Enregistrer les affectations", type="primary")
     if ok2:
-        definir_affectations(u_cible, choix)
+        affecter_kpis(u_cible, choix)
         st.success(f"{len(choix)} KPI(s) affecté(s) à « {u_cible} ».")
         st.rerun()
 
@@ -721,7 +692,6 @@ def main():
     init_db()
     ref = charger_referentiel()
     users = charger_users()
-    affect = charger_affectations()
 
     if "auth" not in st.session_state:
         page_login(users)
@@ -730,7 +700,7 @@ def main():
     auth = st.session_state.auth
     role = auth["role"]
     is_admin, is_dg = role == "admin", role == "dg"
-    kpis_ok = kpis_autorises(auth, ref, affect)
+    kpis_ok = kpis_autorises(auth, ref)
     ref_user = ref[ref["kpi"].isin(kpis_ok)]
 
     st.sidebar.markdown("# 📊 Dashboard KPI")
@@ -767,9 +737,9 @@ def main():
     elif page == "Direction Générale":
         page_dg(auth)
     elif page == "Référentiel":
-        page_referentiel(ref)
+        page_referentiel(ref, users)
     elif page == "Comptes":
-        page_comptes(ref, users, affect)
+        page_comptes(ref, users)
 
 
 if __name__ == "__main__":

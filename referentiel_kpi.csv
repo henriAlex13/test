@@ -1,46 +1,46 @@
-categorie,kpi,periodicite,direction,contact
-Activités commerciales,Encours de dépôts Retail montant,Mensuelle,DGPP,
-Activités commerciales,Encours de dépôts Retail Budget,Mensuelle,DGPP,
-Activités commerciales,Encours de dépôts corporate montant,Mensuelle,DGPP,
-Activités commerciales,Encours de dépôts corporate Budget,Mensuelle,DGPP,
-Activités commerciales,Encours de crédit Retail montant,Mensuelle,DGPP,
-Activités commerciales,Encours de crédit Retail Budget,Mensuelle,DGPP,
-Activités commerciales,Encours de crédit corporate montant,Mensuelle,DGPP,
-Activités commerciales,Encours de crédit corporate Budget,Mensuelle,DGPP,
-Activités commerciales,Taux moyen de crédit retail,Mensuelle,DFIN,
-Activités commerciales,Taux moyen de crédit corporate,Mensuelle,DFIN,
-Activités commerciales,Taux moyen de crédit global,Mensuelle,DFIN,
-Activités commerciales,Taux moyen de dépôt retail,Mensuelle,DFIN,
-Activités commerciales,Taux moyen de dépôt corporate,Mensuelle,DFIN,
-Activités commerciales,Taux moyen de dépôt global,Mensuelle,DFIN,
-Activités commerciales,Taux moyen de crédit retail budget,Mensuelle,DFIN,
-Activités commerciales,Taux moyen de crédit corporate budget,Mensuelle,DFIN,
-Activités commerciales,Taux moyen de crédit global budget,Mensuelle,DFIN,
-Activités commerciales,Taux moyen de dépôt retail budget,Mensuelle,DFIN,
-Activités commerciales,Taux moyen de dépôt corporate budget,Mensuelle,DFIN,
-Activités commerciales,Taux moyen de dépôt global budget,Mensuelle,DFIN,
-Activités commerciales,Taux de dossiers de crédits échus Corporate,Mensuelle,DCEI,
-Activités commerciales,Nombre de dossier à renouveler Retail (Professionnels),Mensuelle,DRC,
-Activités commerciales,Pourcentage de dossier renouvelé Retail (Professionnels),Mensuelle,DRC,
-Activités commerciales,Pourcentage de dossier traité Retail (Professionnels),Mensuelle,DRC,
-Activités commerciales,Pourcentage de dossier non traité Retail (Professionnels),Mensuelle,DRC,
-Activités commerciales,Nombre de forçage Corporate,Mensuelle,DCEI,
-Activités commerciales,Nombre de Décaissement Non Conforme Corporate,Mensuelle,DCEI,
-Activités commerciales,KYC non clôturés > 60 j - Corporate,Mensuelle,DCEI,
-Performance financière,Nombre de Suspens Hors SGCS et TRESO,Trimestrielle,DFIN,
-Performance financière,Nombre de Suspens GLOBAL,Trimestrielle,DFIN,
-Performance financière,Montant des Suspens débiteurs Hors SGCS et TRESO,Trimestrielle,DFIN,
-Performance financière,Montant des Suspens débiteurs GLOBAL,Trimestrielle,DFIN,
-Qualité de portefeuille et risque,Nombre de PDI Retail,Mensuelle,DRC,
-Qualité de portefeuille et risque,Nombre de PDI CLIPRI,Mensuelle,DRC,
-Qualité de portefeuille et risque,Nombre de PDI CLIPRO,Mensuelle,DRC,
-Qualité de portefeuille et risque,CNR global,Mensuelle,DRC,
-Qualité de portefeuille et risque,CNR Retail,Mensuelle,DRC,
-Qualité de portefeuille et risque,CNR Corporate,Mensuelle,DRC,
-Ressources humaines,Taux de chaises vides par direction,Mensuelle,DRH,
-Ressources humaines,Taux d'absentéisme par direction,Mensuelle,DRH,
-Ressources humaines,Taux de turn over par direction,Mensuelle,DRH,
-Gouvernance et conformité,Nombre d'incidents financiers élevés et très élevés,Mensuelle,C.PERM,
-Gouvernance et conformité,Nombre d'incidents opérationnels,Mensuelle,C.PERM,
-Gouvernance et conformité,Montant des incidents Opérationnels,Mensuelle,C.PERM,
-Digitalisation,Moyenne Top 10 de Disponibilité des SAB (Global),Mensuelle,SecOp,
+categorie,kpi,periodicite,direction,contact,username
+Activités commerciales,Encours de dépôts Retail montant,Mensuelle,DGPP,,depot
+Activités commerciales,Encours de dépôts Retail Budget,Mensuelle,DGPP,,depot
+Activités commerciales,Encours de dépôts corporate montant,Mensuelle,DGPP,,depot
+Activités commerciales,Encours de dépôts corporate Budget,Mensuelle,DGPP,,depot
+Activités commerciales,Encours de crédit Retail montant,Mensuelle,DGPP,,credit
+Activités commerciales,Encours de crédit Retail Budget,Mensuelle,DGPP,,credit
+Activités commerciales,Encours de crédit corporate montant,Mensuelle,DGPP,,credit
+Activités commerciales,Encours de crédit corporate Budget,Mensuelle,DGPP,,credit
+Activités commerciales,Taux moyen de crédit retail,Mensuelle,DFIN,,taux
+Activités commerciales,Taux moyen de crédit corporate,Mensuelle,DFIN,,taux
+Activités commerciales,Taux moyen de crédit global,Mensuelle,DFIN,,taux
+Activités commerciales,Taux moyen de dépôt retail,Mensuelle,DFIN,,taux
+Activités commerciales,Taux moyen de dépôt corporate,Mensuelle,DFIN,,taux
+Activités commerciales,Taux moyen de dépôt global,Mensuelle,DFIN,,taux
+Activités commerciales,Taux moyen de crédit retail budget,Mensuelle,DFIN,,
+Activités commerciales,Taux moyen de crédit corporate budget,Mensuelle,DFIN,,
+Activités commerciales,Taux moyen de crédit global budget,Mensuelle,DFIN,,
+Activités commerciales,Taux moyen de dépôt retail budget,Mensuelle,DFIN,,
+Activités commerciales,Taux moyen de dépôt corporate budget,Mensuelle,DFIN,,
+Activités commerciales,Taux moyen de dépôt global budget,Mensuelle,DFIN,,
+Activités commerciales,Taux de dossiers de crédits échus Corporate,Mensuelle,DCEI,,
+Activités commerciales,Nombre de dossier à renouveler Retail (Professionnels),Mensuelle,DRC,,
+Activités commerciales,Pourcentage de dossier renouvelé Retail (Professionnels),Mensuelle,DRC,,
+Activités commerciales,Pourcentage de dossier traité Retail (Professionnels),Mensuelle,DRC,,
+Activités commerciales,Pourcentage de dossier non traité Retail (Professionnels),Mensuelle,DRC,,
+Activités commerciales,Nombre de forçage Corporate,Mensuelle,DCEI,,
+Activités commerciales,Nombre de Décaissement Non Conforme Corporate,Mensuelle,DCEI,,
+Activités commerciales,KYC non clôturés > 60 j - Corporate,Mensuelle,DCEI,,
+Performance financière,Nombre de Suspens Hors SGCS et TRESO,Trimestrielle,DFIN,,
+Performance financière,Nombre de Suspens GLOBAL,Trimestrielle,DFIN,,
+Performance financière,Montant des Suspens débiteurs Hors SGCS et TRESO,Trimestrielle,DFIN,,
+Performance financière,Montant des Suspens débiteurs GLOBAL,Trimestrielle,DFIN,,
+Qualité de portefeuille et risque,Nombre de PDI Retail,Mensuelle,DRC,,
+Qualité de portefeuille et risque,Nombre de PDI CLIPRI,Mensuelle,DRC,,
+Qualité de portefeuille et risque,Nombre de PDI CLIPRO,Mensuelle,DRC,,
+Qualité de portefeuille et risque,CNR global,Mensuelle,DRC,,
+Qualité de portefeuille et risque,CNR Retail,Mensuelle,DRC,,
+Qualité de portefeuille et risque,CNR Corporate,Mensuelle,DRC,,
+Ressources humaines,Taux de chaises vides par direction,Mensuelle,DRH,,rh
+Ressources humaines,Taux d'absentéisme par direction,Mensuelle,DRH,,rh
+Ressources humaines,Taux de turn over par direction,Mensuelle,DRH,,rh
+Gouvernance et conformité,Nombre d'incidents financiers élevés et très élevés,Mensuelle,C.PERM,,
+Gouvernance et conformité,Nombre d'incidents opérationnels,Mensuelle,C.PERM,,
+Gouvernance et conformité,Montant des incidents Opérationnels,Mensuelle,C.PERM,,
+Digitalisation,Moyenne Top 10 de Disponibilité des SAB (Global),Mensuelle,SecOp,,
