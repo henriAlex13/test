@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard KPI — Documentation & Guide d'utilisation</title>
+<style>
+  :root{
+    --red:#C8102E; --red-d:#7d0a1c; --dark:#14161D; --ink:#1F2430;
+    --muted:#6B7280; --line:#E6E8EF; --bg:#F5F6FA; --card:#fff;
+    --code-bg:#0f172a; --info:#0369a1; --warn:#b45309; --tip:#15803d;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:'Inter',system-ui,Segoe UI,Roboto,Arial,sans-serif;
+    color:var(--ink);background:var(--bg);line-height:1.6;font-size:15.5px}
+  a{color:var(--red);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{display:grid;grid-template-columns:270px 1fr;max-width:1200px;margin:0 auto}
+
+  /* Sidebar */
+  aside{position:sticky;top:0;align-self:start;height:100vh;overflow:auto;
+    background:var(--dark);color:#E5E7EB;padding:22px 18px}
+  aside .brand{font-weight:800;font-size:1.15rem;color:#fff;display:flex;gap:8px;align-items:center;margin-bottom:4px}
+  aside .sub{color:#9aa2b1;font-size:.8rem;margin-bottom:18px}
+  aside nav a{display:block;color:#cbd2dd;padding:5px 8px;border-radius:8px;font-size:.9rem;margin:1px 0}
+  aside nav a:hover{background:rgba(255,255,255,.06);text-decoration:none;color:#fff}
+  aside nav .grp{color:#fff;font-weight:700;font-size:.8rem;text-transform:uppercase;
+    letter-spacing:.6px;margin:16px 0 6px;padding-left:8px;border-left:3px solid var(--red)}
+  .btn-print{margin-top:20px;display:inline-block;background:var(--red);color:#fff;
+    padding:8px 12px;border-radius:9px;font-weight:600;font-size:.85rem;cursor:pointer;border:0}
+
+  /* Content */
+  main{padding:34px 42px;max-width:900px}
+  .hero{background:linear-gradient(135deg,var(--red),var(--red-d));color:#fff;
+    border-radius:16px;padding:26px 30px;margin-bottom:26px;box-shadow:0 8px 22px rgba(200,16,46,.22)}
+  .hero h1{margin:0 0 4px;font-size:1.7rem;font-weight:800}
+  .hero p{margin:0;opacity:.92}
+  h2{font-size:1.35rem;margin:38px 0 10px;padding-bottom:6px;border-bottom:2px solid var(--line)}
+  h3{font-size:1.08rem;margin:22px 0 6px;color:var(--ink)}
+  h2 .tag{font-size:.62rem;vertical-align:middle;background:var(--red);color:#fff;
+    padding:3px 8px;border-radius:20px;margin-left:8px;font-weight:700;letter-spacing:.4px}
+  p,li{color:#2a2f3a}
+  code{background:#eef1f6;color:#b3123a;padding:1px 6px;border-radius:5px;font-size:.86em;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  pre{background:var(--code-bg);color:#e5e9f0;padding:14px 16px;border-radius:12px;overflow:auto;
+    font-size:.85rem;line-height:1.5}
+  pre code{background:none;color:inherit;padding:0}
+  table{border-collapse:collapse;width:100%;margin:12px 0;background:var(--card);
+    border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:.92rem}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:#fafbfd;font-weight:700;color:#374151}
+  tr:last-child td{border-bottom:0}
+  .callout{border-radius:11px;padding:12px 16px;margin:14px 0;border-left:4px solid;font-size:.93rem}
+  .callout.info{background:#eff6ff;border-color:var(--info)}
+  .callout.warn{background:#fffbeb;border-color:var(--warn)}
+  .callout.tip{background:#f0fdf4;border-color:var(--tip)}
+  .callout b{display:block;margin-bottom:2px}
+  .pill{display:inline-block;background:#eef1f6;color:#374151;border-radius:20px;
+    padding:2px 10px;font-size:.8rem;font-weight:600}
+  ol li,ul li{margin:3px 0}
+  footer{margin-top:46px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:.85rem}
+  @media print{
+    aside{display:none} .wrap{display:block} main{max-width:none;padding:0}
+    .hero{box-shadow:none} a{color:var(--ink)}
+  }
+  @media (max-width:820px){ .wrap{grid-template-columns:1fr} aside{position:static;height:auto} main{padding:22px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<aside>
+  <div class="brand">📊 Dashboard KPI</div>
+  <div class="sub">Documentation &amp; Guide — v1</div>
+  <nav>
+    <div class="grp">Guide d'utilisation</div>
+    <a href="#presentation">1. Présentation</a>
+    <a href="#connexion">2. Connexion</a>
+    <a href="#roles">3. Les rôles</a>
+    <a href="#u-saisie">4. Saisir des indicateurs</a>
+    <a href="#u-dashboard">5. Tableau de bord</a>
+    <a href="#u-historique">6. Historique</a>
+    <a href="#u-admin">7. Espace administrateur</a>
+    <a href="#u-dg">8. Direction Générale</a>
+
+    <div class="grp">Documentation technique</div>
+    <a href="#t-archi">9. Architecture</a>
+    <a href="#t-fichiers">10. Fichiers du projet</a>
+    <a href="#t-install">11. Installation</a>
+    <a href="#t-bdd">12. Base de données</a>
+    <a href="#t-amorcage">13. Amorçage / CSV</a>
+    <a href="#t-affectation">14. Affectations</a>
+    <a href="#t-securite">15. Sécurité</a>
+    <a href="#t-details">16. Règles métier</a>
+    <a href="#t-backup">17. Sauvegarde</a>
+    <a href="#t-depannage">18. Dépannage</a>
+    <a href="#t-evolutions">19. Évolutions</a>
+    <a href="#t-checklist">20. Checklist backup</a>
+  </nav>
+  <button class="btn-print" onclick="window.print()">🖨️ Imprimer / PDF</button>
+</aside>
+
+<main>
+  <div class="hero">
+    <h1>Dashboard KPI — Documentation &amp; Guide d'utilisation</h1>
+    <p>Application de collecte et de suivi des indicateurs de pilotage (Streamlit + SQLite).</p>
+  </div>
+
+  <div class="callout info">
+    <b>À qui s'adresse ce document ?</b>
+    La <strong>partie Guide</strong> (sections 1 à 8) est destinée aux utilisateurs de l'outil.
+    La <strong>partie technique</strong> (sections 9 à 20) est destinée à l'administrateur / au backup
+    chargé de la maintenance en cas d'absence.
+  </div>
+
+  <!-- ================= GUIDE ================= -->
+  <h2 id="presentation">1. Présentation <span class="tag">GUIDE</span></h2>
+  <p>Le Dashboard KPI centralise la <strong>saisie</strong>, le <strong>suivi</strong> et la
+  <strong>consolidation</strong> des indicateurs de performance. Chaque indicateur (KPI) appartient à un
+  <em>domaine</em> (Activités commerciales, Performance financière, etc.), relève d'une
+  <em>direction</em> et possède une <em>périodicité</em> (mensuelle ou trimestrielle).
+  Les contributeurs saisissent les valeurs de leurs indicateurs ; l'administrateur consolide l'ensemble.</p>
+
+  <h2 id="connexion">2. Connexion <span class="tag">GUIDE</span></h2>
+  <ol>
+    <li>Ouvrez le navigateur à l'adresse communiquée par l'administrateur, généralement
+      <code>http://localhost:8501</code> (ou l'adresse du serveur).</li>
+    <li>Saisissez votre <strong>identifiant</strong> et votre <strong>mot de passe</strong>, puis
+      cliquez sur <span class="pill">Se connecter</span>.</li>
+    <li>Le menu de gauche s'adapte à votre rôle. Le bouton <span class="pill">Se déconnecter</span>
+      est en bas de ce menu.</li>
+  </ol>
+  <div class="callout tip"><b>Compte par défaut</b>
+    Identifiant <code>admin</code> — mot de passe <code>admin123</code> (à changer rapidement).</div>
+
+  <h2 id="roles">3. Les rôles <span class="tag">GUIDE</span></h2>
+  <table>
+    <tr><th>Rôle</th><th>Ce qu'il voit</th><th>Pages disponibles</th></tr>
+    <tr><td><strong>saisie</strong></td><td>Uniquement les KPIs qui lui sont affectés</td>
+      <td>Saisie · Tableau de bord · Historique</td></tr>
+    <tr><td><strong>admin</strong></td><td>Tous les KPIs + gestion</td>
+      <td>Pilotage · Référentiel · Comptes</td></tr>
+    <tr><td><strong>dg</strong></td><td>Vue dédiée (en cours de conception)</td>
+      <td>Direction Générale</td></tr>
+  </table>
+
+  <h2 id="u-saisie">4. Saisir des indicateurs <span class="tag">GUIDE</span></h2>
+  <p>Page <strong>Saisie</strong> (utilisateur) ou onglet <strong>Saisie</strong> de la page Pilotage (admin) :</p>
+  <ol>
+    <li>Choisissez la <strong>périodicité</strong>, l'<strong>année</strong> puis le <strong>mois</strong>
+      (ou le <strong>trimestre</strong>).</li>
+    <li>Les indicateurs concernés s'affichent, regroupés par domaine, sur deux colonnes. L'unité attendue
+      est rappelée entre parenthèses : <code>%</code>, <code>FCFA</code> ou <code>Nombre</code>. La direction
+      responsable apparaît en infobulle (icône <code>?</code>).</li>
+    <li>Renseignez les valeurs, ajoutez un commentaire si besoin, puis cliquez sur
+      <span class="pill">💾 Enregistrer</span>.</li>
+  </ol>
+  <div class="callout info"><b>Corrections</b>
+    Une valeur déjà saisie pour une période est <strong>pré-remplie</strong> : il suffit de la modifier
+    et d'enregistrer à nouveau. Chaque enregistrement (y compris les corrections) est tracé dans l'historique.</div>
+
+  <h2 id="u-dashboard">5. Tableau de bord <span class="tag">GUIDE</span></h2>
+  <p>Filtrez par domaine et par direction. Vous obtenez :</p>
+  <ul>
+    <li>des indicateurs de synthèse (nombre de KPIs, taux de remplissage) ;</li>
+    <li>un tableau des valeurs pour une <strong>période de référence</strong> ;</li>
+    <li>la <strong>courbe d'évolution</strong> d'un indicateur au choix ;</li>
+    <li>un bouton d'<strong>export CSV</strong>.</li>
+  </ul>
+
+  <h2 id="u-historique">6. Historique <span class="tag">GUIDE</span></h2>
+  <p>Journal complet des enregistrements : date/heure, KPI, domaine, direction, période, valeur,
+  contributeur et commentaire. Filtres par domaine, contributeur et période, avec export CSV.
+  L'historique conserve toutes les saisies, y compris les valeurs remplacées.</p>
+
+  <h2 id="u-admin">7. Espace administrateur <span class="tag">GUIDE</span></h2>
+  <h3>Pilotage</h3>
+  <p>Quatre onglets en un seul endroit : <strong>Vue d'ensemble</strong> (consolidation de tous les
+  indicateurs, complétude par domaine), <strong>Analyse</strong> (tableau de bord), <strong>Historique</strong>
+  et <strong>Saisie</strong>.</p>
+  <h3>Référentiel</h3>
+  <p>Liste des indicateurs et de leurs responsables. En bas, le formulaire <strong>➕ Ajouter un indicateur</strong>
+  permet de créer un KPI (intitulé, domaine existant ou nouveau, direction, périodicité, contact, responsable).</p>
+  <h3>Comptes</h3>
+  <ul>
+    <li><strong>Créer un compte</strong> et lui affecter directement ses KPIs.</li>
+    <li><strong>Modifier / supprimer un compte</strong> : nom, rôle, réinitialisation du mot de passe,
+      ou suppression (avec confirmation). Impossible de supprimer son propre compte ni le dernier administrateur.</li>
+    <li><strong>Modifier les affectations</strong> d'un compte existant.</li>
+  </ul>
+  <div class="callout tip"><b>Modèle d'affectation</b>
+    Un indicateur a <strong>un seul responsable</strong>. Affecter un KPI à un utilisateur le retire
+    automatiquement de son précédent responsable.</div>
+
+  <h2 id="u-dg">8. Direction Générale <span class="tag">GUIDE</span></h2>
+  <p>Le rôle <code>dg</code> dispose d'une page dédiée, actuellement en cours de conception
+  (« Bientôt disponible »). Son contenu sera défini ultérieurement.</p>
+
+  <!-- ================= TECHNIQUE ================= -->
+  <h2 id="t-archi">9. Architecture <span class="tag">TECH</span></h2>
+  <p>Application <strong>Streamlit</strong> (Python) mono-fichier (<code>app.py</code>), stockage
+  <strong>SQLite</strong> local (<code>kpi_data.db</code>). Aucune dépendance serveur externe. Les CSV
+  ne servent qu'à l'amorçage initial de la base.</p>
+  <pre><code>Navigateur ──HTTP──► Streamlit (app.py) ──► SQLite (kpi_data.db)
+                         │
+                         └─ amorçage 1er lancement ◄── referentiel_kpi.csv, users.csv</code></pre>
+
+  <h2 id="t-fichiers">10. Fichiers du projet <span class="tag">TECH</span></h2>
+  <table>
+    <tr><th>Fichier</th><th>Rôle</th></tr>
+    <tr><td><code>app.py</code></td><td>Toute l'application (pages, logique, accès base).</td></tr>
+    <tr><td><code>referentiel_kpi.csv</code></td><td>Catalogue d'amorçage des indicateurs.</td></tr>
+    <tr><td><code>users.csv</code></td><td>Comptes d'amorçage (mots de passe hachés).</td></tr>
+    <tr><td><code>.streamlit/config.toml</code></td><td>Thème (couleurs, police).</td></tr>
+    <tr><td><code>requirements.txt</code></td><td>Dépendances Python (<code>streamlit</code>, <code>pandas</code>).</td></tr>
+    <tr><td><code>kpi_data.db</code></td><td><strong>Généré automatiquement.</strong> Base de production (à sauvegarder).</td></tr>
+  </table>
+  <div class="callout warn"><b>Important</b>
+    Une fois <code>kpi_data.db</code> créé, c'est la <strong>source de vérité</strong>. Modifier les CSV
+    n'a plus d'effet automatique (voir §13).</div>
+
+  <h2 id="t-install">11. Installation &amp; lancement <span class="tag">TECH</span></h2>
+  <p>Prérequis : <strong>Python 3.9+</strong>. Dans le dossier du projet :</p>
+  <pre><code>pip install -r requirements.txt
+streamlit run app.py</code></pre>
+  <p>L'application s'ouvre sur <code>http://localhost:8501</code>. Pour un accès depuis d'autres postes du réseau :</p>
+  <pre><code>streamlit run app.py --server.address 0.0.0.0 --server.port 8501</code></pre>
+
+  <h2 id="t-bdd">12. Base de données <span class="tag">TECH</span></h2>
+  <p>Quatre tables dans <code>kpi_data.db</code> :</p>
+  <h3>referentiel</h3>
+  <table>
+    <tr><th>Colonne</th><th>Description</th></tr>
+    <tr><td>id</td><td>Clé technique.</td></tr>
+    <tr><td>categorie</td><td>Domaine du KPI.</td></tr>
+    <tr><td>kpi</td><td>Intitulé (unique).</td></tr>
+    <tr><td>periodicite</td><td><code>Mensuelle</code> ou <code>Trimestrielle</code>.</td></tr>
+    <tr><td>direction</td><td>Direction responsable (DGPP, DFIN…).</td></tr>
+    <tr><td>contact</td><td>Email / matricule du contributeur.</td></tr>
+    <tr><td>username</td><td><strong>Compte responsable</strong> (lien vers <code>users.username</code>).</td></tr>
+  </table>
+  <h3>users</h3>
+  <table>
+    <tr><th>Colonne</th><th>Description</th></tr>
+    <tr><td>username</td><td>Identifiant (clé primaire).</td></tr>
+    <tr><td>password_hash</td><td>SHA256 du mot de passe salé (voir §15).</td></tr>
+    <tr><td>nom</td><td>Nom affiché.</td></tr>
+    <tr><td>role</td><td><code>saisie</code>, <code>admin</code> ou <code>dg</code>.</td></tr>
+  </table>
+  <h3>saisies (état courant)</h3>
+  <p>Une ligne par couple <code>(kpi, periode)</code> — contrainte d'unicité. Colonnes :
+  <code>kpi, periode, periode_sort, valeur, commentaire, saisi_par, date_saisie</code>.</p>
+  <h3>historique (journal)</h3>
+  <p>Même structure, mais <strong>append-only</strong> : chaque enregistrement crée une ligne,
+  ce qui conserve toutes les modifications successives.</p>
+
+  <h2 id="t-amorcage">13. Amorçage &amp; import CSV <span class="tag">TECH</span></h2>
+  <p>Au démarrage, <code>init_db()</code> crée les tables si nécessaires puis, <strong>uniquement si une table
+  est vide</strong>, l'amorce depuis le CSV correspondant. La lecture CSV détecte automatiquement le
+  séparateur (<code>,</code> ou <code>;</code>) et gère l'encodage UTF-8/BOM.</p>
+  <p><strong>Appliquer de nouvelles données CSV :</strong> les modifications d'un CSV ne sont reprises que
+  sur une table vide. Pour repartir des CSV, fermez l'application, supprimez <code>kpi_data.db</code>, puis
+  relancez — la base est ré-amorcée.</p>
+  <div class="callout warn"><b>Attention</b>
+    Supprimer <code>kpi_data.db</code> efface aussi les <strong>saisies</strong> et l'<strong>historique</strong>.
+    À ne faire que sur une base de test ou après sauvegarde (§17).</div>
+  <p>Format attendu du <code>referentiel_kpi.csv</code> (en-têtes exacts) :</p>
+  <pre><code>categorie,kpi,periodicite,direction,contact,username</code></pre>
+
+  <h2 id="t-affectation">14. Affectations <span class="tag">TECH</span></h2>
+  <p>L'affectation est portée par la colonne <code>referentiel.username</code> :
+  un KPI = un responsable. Un utilisateur <code>saisie</code> voit les KPIs dont
+  <code>username</code> vaut son identifiant. Les rôles <code>admin</code> et <code>dg</code> voient tous les KPIs.
+  La gestion se fait via la page <strong>Comptes</strong> (à la création ou via « Modifier les affectations »).</p>
+
+  <h2 id="t-securite">15. Sécurité <span class="tag">TECH</span></h2>
+  <ul>
+    <li>Les mots de passe ne sont jamais stockés en clair : <code>SHA256(SALT + mot_de_passe)</code>.</li>
+    <li>Le sel est défini dans <code>app.py</code> : <code>SALT = "SGCI-KPI-2026"</code>.</li>
+  </ul>
+  <div class="callout warn"><b>À faire en production</b>
+    Modifier le <code>SALT</code> et, idéalement, le déplacer dans <code>st.secrets</code> ou une variable
+    d'environnement. <strong>Changer le SALT invalide tous les mots de passe existants</strong> : il faut
+    alors recréer les comptes (ou réinitialiser les mots de passe).</div>
+
+  <h2 id="t-details">16. Règles métier <span class="tag">TECH</span></h2>
+  <h3>Codage des périodes</h3>
+  <table>
+    <tr><th>Périodicité</th><th>Stockage</th><th>Exemple</th></tr>
+    <tr><td>Mensuelle</td><td><code>AAAA-MM</code></td><td><code>2026-05</code></td></tr>
+    <tr><td>Trimestrielle</td><td><code>AAAA-Tq</code> (tri sur le dernier mois)</td><td><code>2026-T2</code></td></tr>
+  </table>
+  <h3>Type &amp; format des valeurs (déduits de l'intitulé)</h3>
+  <table>
+    <tr><th>Si l'intitulé contient…</th><th>Type</th><th>Affichage</th></tr>
+    <tr><td>taux, pourcentage, %, disponibilité</td><td>pourcentage</td><td><code>12,50 %</code></td></tr>
+    <tr><td>montant, encours</td><td>montant</td><td><code>1 250 000 FCFA</code></td></tr>
+    <tr><td>autre</td><td>nombre</td><td><code>42</code></td></tr>
+  </table>
+
+  <h2 id="t-backup">17. Sauvegarde &amp; restauration <span class="tag">TECH</span></h2>
+  <p>Toutes les données de production sont dans <code>kpi_data.db</code>.</p>
+  <ul>
+    <li><strong>Sauvegarde :</strong> copiez régulièrement <code>kpi_data.db</code> (application fermée
+      de préférence) vers un emplacement sûr, en datant le fichier (ex. <code>kpi_data_2026-06-19.db</code>).</li>
+    <li><strong>Restauration :</strong> remplacez <code>kpi_data.db</code> par la copie sauvegardée, puis relancez.</li>
+    <li>Pensez aussi à archiver <code>app.py</code> et les CSV d'amorçage.</li>
+  </ul>
+
+  <h2 id="t-depannage">18. Dépannage <span class="tag">TECH</span></h2>
+  <table>
+    <tr><th>Symptôme</th><th>Cause probable</th><th>Solution</th></tr>
+    <tr><td>Référentiel à 0 / « Aucun KPI »</td>
+      <td>CSV non chargé (séparateur, en-têtes, ou fichier mal nommé)</td>
+      <td>Vérifier le nom exact <code>referentiel_kpi.csv</code>, les en-têtes, supprimer
+        <code>kpi_data.db</code> et relancer.</td></tr>
+    <tr><td>Connexion admin OK mais 0 KPI</td>
+      <td>users.csv chargé mais referentiel.csv non</td>
+      <td>Même correctif que ci-dessus.</td></tr>
+    <tr><td>Port déjà utilisé</td><td>8501 occupé</td>
+      <td><code>streamlit run app.py --server.port 8502</code></td></tr>
+    <tr><td>Base verrouillée (database is locked)</td><td>Écritures concurrentes SQLite</td>
+      <td>Rare en faible charge ; sinon envisager PostgreSQL (§19).</td></tr>
+    <tr><td>Mot de passe oublié</td><td>—</td>
+      <td>Se connecter avec un autre admin et réinitialiser via Comptes, ou recréer le compte.</td></tr>
+  </table>
+
+  <h2 id="t-evolutions">19. Évolutions possibles <span class="tag">TECH</span></h2>
+  <ul>
+    <li><strong>PostgreSQL</strong> pour un usage multi-utilisateurs simultané (adapter <code>get_conn</code>).</li>
+    <li>Externaliser le <code>SALT</code> et les accès via <code>st.secrets</code>.</li>
+    <li>Concevoir la <strong>vue Direction Générale</strong>.</li>
+    <li>Édition en ligne du champ <code>contact</code> et renommage d'identifiant.</li>
+  </ul>
+
+  <h2 id="t-checklist">20. Checklist backup (en cas d'absence) <span class="tag">TECH</span></h2>
+  <ol>
+    <li>Lancer l'appli : <code>streamlit run app.py</code> depuis le dossier du projet.</li>
+    <li>Vérifier que la page <strong>Référentiel</strong> affiche bien les indicateurs.</li>
+    <li>Sauvegarder <code>kpi_data.db</code> quotidiennement (copie datée).</li>
+    <li>Gestion des accès : page <strong>Comptes</strong> (créer / modifier / supprimer, affecter les KPIs).</li>
+    <li>Ajout d'un indicateur : page <strong>Référentiel</strong> → formulaire en bas.</li>
+    <li>En cas de problème d'affichage des KPIs : voir §18 (souvent un souci de CSV).</li>
+  </ol>
+
+  <footer>
+    Dashboard KPI — Documentation technique &amp; guide d'utilisation. Document à conserver avec les fichiers du projet.
+  </footer>
+</main>
+</div>
+</body>
+</html>
