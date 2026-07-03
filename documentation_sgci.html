@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Documentation — Plateforme SGCI</title>
+<style>
+  :root {
+    --bg:#0d1117;--surface:#161b22;--card:#1c2128;--card2:#21262d;
+    --border:#30363d;--accent:#58a6ff;--green:#3fb950;--orange:#ffa657;
+    --red:#f78166;--violet:#7c3aed;--text:#e6edf3;--muted:#8b949e;
+    --radius:10px;
+  }
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-size:15px;line-height:1.7;display:flex}
+
+  nav{width:260px;min-height:100vh;background:var(--surface);border-right:1px solid var(--border);padding:32px 20px;position:sticky;top:0;height:100vh;overflow-y:auto;flex-shrink:0}
+  .nav-logo{display:flex;align-items:center;gap:10px;margin-bottom:32px}
+  .nav-logo-icon{width:36px;height:36px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#000}
+  .nav-logo-text{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--text);line-height:1.2}
+  .nav-logo-sub{font-size:11px;color:var(--muted)}
+  .nav-section{margin-bottom:24px}
+  .nav-section-label{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px;padding:0 8px}
+  nav a{display:flex;align-items:center;gap:8px;padding:7px 12px;border-radius:7px;color:var(--muted);text-decoration:none;font-size:13px;font-weight:500;transition:all .15s;margin-bottom:2px}
+  nav a:hover,nav a.active{background:var(--card);color:var(--text)}
+  nav a .icon{font-size:14px;width:18px;text-align:center;flex-shrink:0}
+
+  main{flex:1;max-width:900px;padding:56px 60px;min-height:100vh}
+
+  h1{font-family:'Syne',sans-serif;font-size:42px;font-weight:800;letter-spacing:-1.5px;line-height:1.1;color:var(--text);margin-bottom:16px}
+  h2{font-family:'Syne',sans-serif;font-size:26px;font-weight:700;letter-spacing:-0.5px;color:var(--text);margin-top:64px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+  h3{font-size:17px;font-weight:600;color:var(--text);margin-top:32px;margin-bottom:12px}
+  h4{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-top:24px;margin-bottom:8px}
+  p{color:var(--muted);margin-bottom:14px}
+  strong{color:var(--text);font-weight:600}
+  section{margin-bottom:16px}
+
+  .section-tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent);background:rgba(88,166,255,0.1);padding:3px 10px;border-radius:20px;margin-bottom:12px}
+  .hero-desc{font-size:17px;color:var(--muted);line-height:1.8;max-width:640px;margin-bottom:40px}
+  .hero-meta{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:48px;padding-bottom:40px;border-bottom:1px solid var(--border)}
+  .hero-meta-item{display:flex;flex-direction:column;gap:2px}
+  .hero-meta-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px}
+  .hero-meta-value{font-size:14px;font-weight:600;color:var(--text)}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin-bottom:16px}
+  .card-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px}
+  .card-desc{font-size:13px;color:var(--muted);margin-bottom:0}
+  .cards-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0}
+
+  .module-row{display:flex;align-items:flex-start;gap:16px;background:var(--card);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius);padding:18px 20px;margin-bottom:12px}
+  .module-row.green{border-left-color:var(--green)}
+  .module-row.orange{border-left-color:var(--orange)}
+  .module-icon{font-size:28px;flex-shrink:0}
+  .module-body h3{margin-top:0;margin-bottom:4px;font-size:15px}
+  .module-body p{font-size:13px;margin-bottom:0}
+
+  pre{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:16px 20px;overflow-x:auto;margin:16px 0;font-family:'JetBrains Mono','Fira Code',monospace;font-size:13px;line-height:1.6}
+  code{font-family:'JetBrains Mono','Fira Code',monospace;font-size:12.5px;background:var(--card2);color:var(--orange);padding:2px 6px;border-radius:4px}
+  pre code{background:none;padding:0;color:var(--text)}
+  .kw{color:var(--violet)}.fn{color:var(--accent)}.str{color:var(--green)}.cm{color:var(--muted);font-style:italic}.nb{color:var(--orange)}
+
+  table{width:100%;border-collapse:collapse;margin:20px 0;font-size:13px}
+  th{background:var(--card2);color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.6px;padding:10px 14px;text-align:left;border:1px solid var(--border)}
+  td{padding:10px 14px;color:var(--muted);border:1px solid var(--border);vertical-align:top}
+  tr:nth-child(odd) td{background:var(--card)}
+  tr:nth-child(even) td{background:var(--card2)}
+  td strong{color:var(--accent)}
+
+  .steps{margin:20px 0}
+  .step{display:flex;gap:16px;margin-bottom:20px;align-items:flex-start}
+  .step-num{width:28px;height:28px;flex-shrink:0;background:var(--accent);color:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;margin-top:2px}
+  .step-body h3{margin-top:0;margin-bottom:4px;font-size:14px}
+  .step-body p{font-size:13px;margin-bottom:0}
+
+  .callout{border-radius:8px;padding:14px 18px;margin:20px 0;display:flex;gap:12px;font-size:13px}
+  .callout.info{background:rgba(88,166,255,0.08);border:1px solid rgba(88,166,255,0.3)}
+  .callout.warning{background:rgba(255,166,87,0.08);border:1px solid rgba(255,166,87,0.3)}
+  .callout.success{background:rgba(63,185,80,0.08);border:1px solid rgba(63,185,80,0.3)}
+  .callout.danger{background:rgba(247,129,102,0.08);border:1px solid rgba(247,129,102,0.3)}
+  .callout-icon{font-size:18px;flex-shrink:0}
+  .callout p{margin-bottom:0}
+  .callout.info p{color:var(--accent)}
+  .callout.warning p{color:var(--orange)}
+  .callout.success p{color:var(--green)}
+  .callout.danger p{color:var(--red)}
+
+  .badge{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;vertical-align:middle;margin-left:6px}
+  .badge.blue{background:rgba(88,166,255,0.15);color:var(--accent)}
+  .badge.green{background:rgba(63,185,80,0.15);color:var(--green)}
+  .badge.orange{background:rgba(255,166,87,0.15);color:var(--orange)}
+  .badge.red{background:rgba(247,129,102,0.15);color:var(--red)}
+
+  .arch{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:28px;margin:24px 0;font-family:'JetBrains Mono','Fira Code',monospace;font-size:13px;line-height:1.9;color:var(--muted)}
+  .arch .hl{color:var(--accent);font-weight:600}
+  .arch .hl2{color:var(--green);font-weight:600}
+  .arch .hl3{color:var(--orange);font-weight:600}
+
+  .flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:16px 0}
+  .flow-step{background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:6px 14px;font-size:12px;font-weight:600;color:var(--text)}
+  .flow-arrow{color:var(--muted);font-size:16px}
+
+  .file-tree{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:20px 24px;font-family:'JetBrains Mono','Fira Code',monospace;font-size:13px;line-height:2;color:var(--muted)}
+  .file-tree .dir{color:var(--accent);font-weight:600}
+  .file-tree .file{color:var(--text)}
+  .file-tree .comment{color:var(--muted);font-style:italic}
+
+  .scenario{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--orange);border-radius:8px;padding:20px 24px;margin:16px 0}
+  .scenario-title{font-size:14px;font-weight:700;color:var(--orange);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .scenario ol{padding-left:20px;color:var(--muted);font-size:13px}
+  .scenario ol li{margin-bottom:8px}
+
+  hr{border:none;border-top:1px solid var(--border);margin:40px 0}
+
+  @media(max-width:900px){nav{display:none}main{padding:32px 24px}.cards-grid{grid-template-columns:1fr}h1{font-size:30px}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-icon">S</div>
+    <div>
+      <div class="nav-logo-text">SGCI Platform</div>
+      <div class="nav-logo-sub">Documentation v1.0</div>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Introduction</div>
+    <a href="#apercu"><span class="icon">📋</span> Aperçu</a>
+    <a href="#architecture"><span class="icon">🏗</span> Architecture</a>
+    <a href="#installation"><span class="icon">⚙️</span> Installation locale</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Guide Utilisateur</div>
+    <a href="#accueil"><span class="icon">🏠</span> Page d'accueil</a>
+    <a href="#dashboard"><span class="icon">📊</span> Dashboard Réclamations</a>
+    <a href="#module-kpi"><span class="icon">📈</span> Module KPI</a>
+    <a href="#upload-kpi"><span class="icon">📥</span> Import mensuel</a>
+    <a href="#filtres"><span class="icon">🔍</span> Filtres & navigation</a>
+    <a href="#export"><span class="icon">💾</span> Export Excel</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Référence Technique</div>
+    <a href="#structure"><span class="icon">📁</span> Structure du code</a>
+    <a href="#base-donnees"><span class="icon">🗄</span> Base de données</a>
+    <a href="#parsers"><span class="icon">⚙️</span> Parsers</a>
+    <a href="#callbacks"><span class="icon">🔄</span> Callbacks Dash</a>
+    <a href="#uc-mapping"><span class="icon">🗺</span> Mapping UC</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Reprise en main</div>
+    <a href="#scenarios"><span class="icon">🔧</span> Scénarios courants</a>
+    <a href="#debug"><span class="icon">🐛</span> Débogage</a>
+    <a href="#evolution"><span class="icon">🔮</span> Évolutions futures</a>
+  </div>
+</nav>
+
+<main>
+
+  <!-- HERO -->
+  <section id="apercu">
+    <span class="section-tag">Documentation Technique</span>
+    <h1>Plateforme Réclamations<br>SGCI</h1>
+    <p class="hero-desc">Application web interactive construite avec <strong>Python Dash</strong> pour le suivi des réclamations clients et des indicateurs de performance (KPI) de la Société Générale Côte d'Ivoire.</p>
+    <div class="hero-meta">
+      <div class="hero-meta-item"><span class="hero-meta-label">Framework</span><span class="hero-meta-value">Python Dash + Flask</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-label">Base de données</span><span class="hero-meta-value">SQLite (kpi_historique.db)</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-label">Fichier principal</span><span class="hero-meta-value">reclam_final.py</span></div>
+      <div class="hero-meta-item"><span class="hero-meta-label">Version</span><span class="hero-meta-value">1.0 — Juillet 2026</span></div>
+    </div>
+
+    <h3>Les 3 modules</h3>
+    <div class="module-row">
+      <div class="module-icon">📊</div>
+      <div class="module-body"><h3>Dashboard Réclamations</h3><p>Analyse des réclamations clients : KPI, évolutions mensuelles, répartition par agence, groupe de résolution, SLA. Chargement par fichier CSV ou Excel.</p></div>
+    </div>
+    <div class="module-row green">
+      <div class="module-icon">📈</div>
+      <div class="module-body"><h3>Module KPI — Satisfaction &amp; CRC</h3><p>Import mensuel de 3 fichiers Excel (KPI CRC, KPIS SAT, KPIS SAT PRO). Historisation SQLite, tableaux hiérarchiques UC → Agences, graphiques d'évolution, export stylé.</p></div>
+    </div>
+    <div class="module-row orange">
+      <div class="module-icon">🌐</div>
+      <div class="module-body"><h3>Ressource Externe</h3><p>Lien configurable vers une ressource externe. Pour le modifier : chercher <code>href="https://fr.wikipedia.org/wiki/Lionel_Messi"</code> dans le code et remplacer l'URL.</p></div>
+    </div>
+  </section>
+
+  <!-- ARCHITECTURE -->
+  <section id="architecture">
+    <h2>🏗 Architecture</h2>
+    <p>L'application utilise le pattern <strong>display show/hide</strong> pour la navigation entre pages — les 3 pages sont toujours dans le DOM, on bascule simplement <code>display: block/none</code>. Ce choix évite les problèmes de routing Dash et de session.</p>
+
+    <div class="arch">
+<span class="hl">reclam_final.py</span>  (fichier unique, ~1820 lignes)
+│
+├── <span class="hl2">Pages HTML (variables globales)</span>
+│   ├── accueil          <span class="cm"># 3 cartes de navigation</span>
+│   ├── dashboard        <span class="cm"># Sidebar filtres + 4 vues</span>
+│   └── module           <span class="cm"># Sidebar upload + 3 onglets</span>
+│
+├── <span class="hl3">Dashboard Réclamations</span>
+│   ├── parse_contents() <span class="cm"># Lecture CSV/Excel (header ligne 8)</span>
+│   ├── load_data()      <span class="cm"># Calcul colonnes dérivées</span>
+│   ├── generate_view_1..4()  <span class="cm"># 4 fonctions de graphiques</span>
+│   └── generate_sla_*() <span class="cm"># Tableaux SLA pivot</span>
+│
+├── <span class="hl">Module KPI</span>
+│   ├── UC_MAPPING       <span class="cm"># Dict statique UC → [agences]</span>
+│   ├── AGENCE_TO_UC     <span class="cm"># Index inverse agence → UC</span>
+│   ├── init_db()        <span class="cm"># Création tables SQLite</span>
+│   ├── _has_numeric()   <span class="cm"># Filtre lignes vides/en-têtes</span>
+│   ├── _find_hrow()     <span class="cm"># Détecte ligne des mois</span>
+│   ├── parse_crc()      <span class="cm"># → table kpi_crc</span>
+│   ├── parse_sat()      <span class="cm"># → table kpi_sat_v2</span>
+│   ├── parse_sat_pro()  <span class="cm"># → table kpi_sat_pro_v2</span>
+│   ├── render_crc()     <span class="cm"># Affichage onglet CRC</span>
+│   ├── render_sat()     <span class="cm"># Affichage onglet SAT</span>
+│   ├── render_sat_pro() <span class="cm"># Affichage onglet SAT PRO</span>
+│   └── _build_sat_table() <span class="cm"># Tableau HTML UC/agences stylé</span>
+│
+└── <span class="hl2">Callbacks</span>
+    ├── navigate()         <span class="cm"># Show/hide des 3 pages</span>
+    ├── store_uploaded_data() <span class="cm"># Upload réclamations</span>
+    ├── update_all_filters()  <span class="cm"># Filtres dashboard</span>
+    └── register_kpi_callbacks() <span class="cm"># Tous les callbacks KPI</span>
+    </div>
+
+    <h3>Flux de navigation</h3>
+    <div class="flow">
+      <div class="flow-step">Accueil</div><div class="flow-arrow">→ clic bouton →</div>
+      <div class="flow-step">page-dashboard display:block</div><div class="flow-arrow">→</div>
+      <div class="flow-step">Dashboard visible</div>
+    </div>
+    <div class="flow">
+      <div class="flow-step">Dashboard</div><div class="flow-arrow">→ ← Accueil →</div>
+      <div class="flow-step">page-accueil display:block</div><div class="flow-arrow">→</div>
+      <div class="flow-step">Accueil visible</div>
+    </div>
+  </section>
+
+  <!-- INSTALLATION -->
+  <section id="installation">
+    <h2>⚙️ Installation locale</h2>
+    <p>L'app tourne en production sur un serveur. Ces étapes sont pour lancer une copie locale (dev/test).</p>
+
+    <h3>Fichiers nécessaires</h3>
+    <div class="file-tree">
+<span class="dir">projet/</span>
+├── <span class="file">reclam_final.py</span>       <span class="comment"># Fichier principal — tout est dedans</span>
+├── <span class="file">kpi_historique.db</span>     <span class="comment"># Créé automatiquement au 1er lancement</span>
+└── <span class="dir">assets/</span>
+    └── <span class="file">logo.png</span>            <span class="comment"># Logo SGCI — obligatoire</span>
+    </div>
+
+    <h3>Packages requis</h3>
+    <pre><code>pip install dash dash-bootstrap-components pandas plotly \
+            openpyxl unidecode numpy gunicorn</code></pre>
+
+    <h3>Lancer en local</h3>
+    <pre><code>python reclam_final.py
+<span class="cm"># Ouvrir http://127.0.0.1:8050 dans le navigateur</span></code></pre>
+
+    <div class="callout info">
+      <div class="callout-icon">ℹ️</div>
+      <p>En local, un fichier <code>kpi_historique.db</code> séparé sera créé — il n'écrase pas la base de production.</p>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- GUIDE UTILISATEUR -->
+  <section id="accueil">
+    <h2>🏠 Page d'accueil</h2>
+    <table>
+      <tr><th>Carte</th><th>Action</th><th>Résultat</th></tr>
+      <tr><td><strong>📊 Dashboard Réclamations</strong></td><td>Clic "Ouvrir le dashboard"</td><td>Affiche le dashboard</td></tr>
+      <tr><td><strong>🌐 Ressource Externe</strong></td><td>Clic "Ouvrir le lien"</td><td>Ouvre dans un nouvel onglet</td></tr>
+      <tr><td><strong>📈 Module KPI</strong></td><td>Clic "Bientôt disponible"</td><td>Affiche le module KPI</td></tr>
+    </table>
+  </section>
+
+  <section id="dashboard">
+    <h2>📊 Dashboard Réclamations</h2>
+
+    <h3>Format de fichier attendu</h3>
+    <p>CSV ou Excel (.xlsx). Les <strong>en-têtes de colonnes doivent être à la ligne 8</strong> (les 7 premières lignes sont ignorées — c'est le format d'export standard du système source).</p>
+
+    <h3>Colonnes utilisées</h3>
+    <table>
+      <tr><th>Colonne source</th><th>Colonne créée</th><th>Description</th></tr>
+      <tr><td>Complaint reference</td><td>—</td><td>Référence unique réclamation</td></tr>
+      <tr><td>Claim SLA</td><td>SLA_ETAPE, SLA_JOURS</td><td>Durées SLA parsées</td></tr>
+      <tr><td>Segment</td><td>SEGMENTATION</td><td>PARTICULIER / PROFESSIONNEL / CORPORATE</td></tr>
+      <tr><td>Nature of the claim</td><td>NATURE</td><td>FONDEE / NON FONDEE / INCONNU</td></tr>
+      <tr><td>Date of creation</td><td>Annee, Mois</td><td>Date de création</td></tr>
+      <tr><td>Resolution group</td><td>GROUPE RESOLUTION</td><td>Préfixe "SGCI" retiré</td></tr>
+      <tr><td>Branch</td><td>AGENCE</td><td>6 premiers caractères retirés</td></tr>
+      <tr><td>Resolved date</td><td>DELAI_RECLAMATION</td><td>≤30j → PAS HORS DÉLAI, sinon HORS DÉLAI</td></tr>
+    </table>
+
+    <h3>Les 4 vues graphiques</h3>
+    <table>
+      <tr><th>Bouton</th><th>Contenu</th></tr>
+      <tr><td><strong>📊 Vue Générale</strong></td><td>KPI cards, donut nature, évolution mensuelle, top 10 agences</td></tr>
+      <tr><td><strong>👥 Par Groupe</strong></td><td>Top 5 groupes de résolution, top 10 agences</td></tr>
+      <tr><td><strong>🎫 Par Ticket</strong></td><td>Top 10 créateurs, répartition par typologie</td></tr>
+      <tr><td><strong>📡 Canaux</strong></td><td>Donut délai, canaux de notification, typologies</td></tr>
+    </table>
+
+    <h3>Filtres</h3>
+    <table>
+      <tr><th>Filtre</th><th>Type</th><th>Note</th></tr>
+      <tr><td>🎫 Ticket</td><td>Mono</td><td>Numéro de réclamation exact</td></tr>
+      <tr><td>🏢 Agence</td><td>Multi</td><td>Les options se mettent à jour selon les autres filtres</td></tr>
+      <tr><td>📅 Année / 🗓 Mois</td><td>Mono</td><td>Date de création</td></tr>
+      <tr><td>👤 Segmentation</td><td>Mono</td><td>PARTICULIER / PROFESSIONNEL / CORPORATE</td></tr>
+      <tr><td>⏱ Délai</td><td>Multi</td><td>HORS DÉLAI / PAS HORS DÉLAI</td></tr>
+    </table>
+    <div class="callout success">
+      <div class="callout-icon">✅</div>
+      <p><strong>Filtres interdépendants :</strong> vider un filtre (multi) recharge automatiquement les données — pas besoin d'actualiser.</p>
+    </div>
+  </section>
+
+  <section id="module-kpi">
+    <h2>📈 Module KPI</h2>
+    <div class="cards-grid">
+      <div class="card"><div class="card-title">📞 Onglet KPI CRC</div><div class="card-desc">Indicateurs centre d'appels : joignabilité, occupation, qualité d'écoute, temps moyen… Source : <code>KPI CRC.xlsx</code></div></div>
+      <div class="card"><div class="card-title">😊 Onglet Satisfaction</div><div class="card-desc">Satisfaction client par UC et agence, NPS, répondants. Source : <code>KPIS SAT.xlsx</code></div></div>
+      <div class="card"><div class="card-title">⭐ Onglet SAT PRO</div><div class="card-desc">Même structure que SAT, enquête différente. Source : <code>KPIS SAT PRO.xlsx</code></div></div>
+    </div>
+  </section>
+
+  <section id="upload-kpi">
+    <h2>📥 Import mensuel des données KPI</h2>
+
+    <div class="callout danger">
+      <div class="callout-icon">🔴</div>
+      <p><strong>Toujours sélectionner le mois ET l'année AVANT d'uploader.</strong> Si oublié, un message d'avertissement s'affiche et le fichier est rejeté. Re-uploader directement sans actualiser — le composant se réinitialise automatiquement.</p>
+    </div>
+
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-body"><h3>Sélectionner mois + année</h3><p>Dropdowns "📅 Mois de référence" en haut de la sidebar (ex : Avril + 2026).</p></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-body"><h3>Uploader les fichiers</h3><p>Glisser chaque fichier sur sa zone : <strong>📞 KPI CRC</strong>, <strong>😊 KPIS SAT</strong>, <strong>⭐ KPIS SAT PRO</strong>. Message de confirmation sous chaque zone.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-body"><h3>Vérifier dans les onglets</h3><p>Cliquer sur l'onglet correspondant. Utiliser "🗂 Filtrer par mois" pour voir un mois spécifique ou laisser vide pour tout l'historique.</p></div></div>
+    </div>
+
+    <h3>Structure attendue des fichiers</h3>
+    <table>
+      <tr><th>Fichier</th><th>Col A</th><th>Col B</th><th>Col C</th><th>Col D+</th></tr>
+      <tr><td><strong>KPI CRC.xlsx</strong></td><td>vide</td><td>Indicateur</td><td>Objectif</td><td>Valeurs par mois</td></tr>
+      <tr><td><strong>KPIS SAT.xlsx</strong></td><td>UC ou Agence</td><td colspan="3">Valeurs par mois (multi-feuilles)</td></tr>
+      <tr><td><strong>KPIS SAT PRO.xlsx</strong></td><td>UC ou Agence</td><td colspan="3">Même structure que SAT</td></tr>
+    </table>
+    <div class="callout info">
+      <div class="callout-icon">ℹ️</div>
+      <p>Les parsers <strong>ignorent automatiquement</strong> toutes les lignes sans valeur numérique dans les colonnes de données — peu importe où se trouvent les en-têtes dans le fichier.</p>
+    </div>
+  </section>
+
+  <section id="filtres">
+    <h2>🔍 Filtres KPI</h2>
+    <table>
+      <tr><th>Filtre</th><th>Onglets</th><th>Comportement</th></tr>
+      <tr><td>🗂 Filtrer par mois</td><td>Tous</td><td>Restreint l'affichage à un mois. Vide = historique complet</td></tr>
+      <tr><td>🏢 Filtrer par UC</td><td>SAT + SAT PRO</td><td>Sélectionner une UC met à jour le filtre Agences</td></tr>
+      <tr><td>📍 Filtrer par Agence</td><td>SAT + SAT PRO</td><td>Multi-sélection dans les agences de l'UC sélectionnée</td></tr>
+    </table>
+  </section>
+
+  <section id="export">
+    <h2>💾 Export Excel</h2>
+    <p>Bouton <strong>"📥 Exporter Excel"</strong> en haut à droite. Génère le tableau de l'onglet actif avec les styles visuels (UC orange, en-têtes bleu marine, alternance de lignes).</p>
+    <table>
+      <tr><th>Onglet</th><th>Fichier généré</th><th>Feuilles</th></tr>
+      <tr><td>📞 KPI CRC</td><td><code>KPI_CRC_export_YYYYMMDD_HHMM.xlsx</code></td><td>1 feuille</td></tr>
+      <tr><td>😊 Satisfaction</td><td><code>KPIS_SAT_export_YYYYMMDD_HHMM.xlsx</code></td><td>1 feuille par feuille source</td></tr>
+      <tr><td>⭐ SAT PRO</td><td><code>KPIS_SAT_PRO_export_YYYYMMDD_HHMM.xlsx</code></td><td>1 feuille par feuille source</td></tr>
+    </table>
+  </section>
+
+  <hr>
+
+  <!-- RÉFÉRENCE TECHNIQUE -->
+  <section id="structure">
+    <h2>📁 Structure du code</h2>
+    <p>Tout le code est dans un seul fichier <code>reclam_final.py</code>. Voici les repères pour s'y retrouver :</p>
+    <table>
+      <tr><th>Bloc</th><th>Lignes (~)</th><th>Rôle</th></tr>
+      <tr><td>Imports &amp; config</td><td>1–30</td><td>Dash, DBC, pandas, palette couleurs, styles CSS inline</td></tr>
+      <tr><td>Helpers réclamations</td><td>31–185</td><td><code>kpi_row()</code>, <code>load_data()</code>, <code>parse_contents()</code></td></tr>
+      <tr><td>Vues dashboard</td><td>186–470</td><td><code>generate_view_1()</code> à <code>4()</code>, <code>generate_sla_*()</code></td></tr>
+      <tr><td>Page accueil</td><td>471–530</td><td>Variable <code>accueil</code></td></tr>
+      <tr><td>Layout dashboard</td><td>531–640</td><td>Variable <code>dashboard</code></td></tr>
+      <tr><td>Module KPI — Config</td><td>641–720</td><td><code>DB_PATH</code>, <code>UC_MAPPING</code>, <code>init_db()</code></td></tr>
+      <tr><td>Module KPI — Parsers</td><td>721–940</td><td><code>parse_crc()</code>, <code>parse_sat()</code>, <code>parse_sat_pro()</code></td></tr>
+      <tr><td>Module KPI — Layout</td><td>941–1070</td><td>Variable <code>module</code></td></tr>
+      <tr><td>Module KPI — Callbacks</td><td>1071–1380</td><td><code>register_kpi_callbacks()</code></td></tr>
+      <tr><td>Module KPI — Rendu</td><td>1381–1710</td><td><code>render_crc()</code>, <code>render_sat()</code>, <code>render_sat_pro()</code>, <code>_build_sat_table()</code></td></tr>
+      <tr><td>Layout racine &amp; callbacks</td><td>1711–1820</td><td><code>app.layout</code>, <code>navigate()</code>, callbacks dashboard</td></tr>
+    </table>
+  </section>
+
+  <section id="base-donnees">
+    <h2>🗄 Base de données SQLite</h2>
+    <p>Fichier : <code>kpi_historique.db</code> — créé automatiquement au premier lancement dans le répertoire de l'application.</p>
+    <table>
+      <tr><th>Table</th><th>Colonnes</th><th>Contrainte unicité</th></tr>
+      <tr><td><strong>kpi_crc</strong></td><td><code>mois, indicateur, objectif, valeur</code></td><td><code>(mois, indicateur)</code></td></tr>
+      <tr><td><strong>kpi_sat_v2</strong> <span class="badge green">actif</span></td><td><code>mois, feuille, entite, valeur, uc, is_uc</code></td><td><code>(mois, feuille, entite)</code></td></tr>
+      <tr><td><strong>kpi_sat_pro_v2</strong> <span class="badge green">actif</span></td><td><code>mois, feuille, entite, valeur, uc, is_uc</code></td><td><code>(mois, feuille, entite)</code></td></tr>
+      <tr><td><strong>kpi_sat</strong> <span class="badge orange">legacy</span></td><td><code>mois, feuille, entite, valeur</code></td><td>—</td></tr>
+    </table>
+    <div class="callout warning">
+      <div class="callout-icon">⚠️</div>
+      <p><strong>INSERT OR REPLACE :</strong> uploader deux fois le même mois <strong>écrase</strong> les données précédentes pour ce mois. Pas de doublons possibles.</p>
+    </div>
+    <h3>Consulter la base directement</h3>
+    <pre><code><span class="cm"># En Python</span>
+<span class="kw">import</span> sqlite3, pandas <span class="kw">as</span> pd
+con = sqlite3.connect(<span class="str">"kpi_historique.db"</span>)
+df  = pd.read_sql(<span class="str">"SELECT * FROM kpi_sat_v2 WHERE mois='Avril 2026'"</span>, con)
+con.close()
+print(df.head())</code></pre>
+    <h3>Réinitialiser la base</h3>
+    <p>Supprimer le fichier <code>kpi_historique.db</code> — il sera recréé vide au prochain lancement de l'app.</p>
+  </section>
+
+  <section id="parsers">
+    <h2>⚙️ Parsers — Fonctionnement</h2>
+
+    <h3>Règle universelle de filtrage des lignes</h3>
+    <pre><code><span class="kw">def</span> <span class="fn">_has_numeric</span>(row_series):
+    <span class="str">"""True si la ligne a au moins une valeur numérique ou %"""</span>
+    <span class="kw">for</span> v <span class="kw">in</span> row_series:
+        s = str(v).strip().replace(<span class="str">'%'</span>, <span class="str">''</span>).replace(<span class="str">','</span>, <span class="str">'.'</span>)
+        <span class="kw">try</span>:
+            float(s); <span class="kw">return True</span>
+        <span class="kw">except</span>: <span class="kw">pass</span>
+    <span class="kw">return False</span>  <span class="cm"># Ligne vide / en-tête / séparateur → ignorée</span></code></pre>
+
+    <h3>Détection de la ligne d'en-tête</h3>
+    <pre><code><span class="kw">def</span> <span class="fn">_find_hrow</span>(df):
+    <span class="str">"""Cherche la ligne contenant des noms de mois"""</span>
+    <span class="kw">for</span> i <span class="kw">in</span> range(min(<span class="nb">15</span>, len(df))):
+        row_str = <span class="str">' '</span>.join([str(v).upper() <span class="kw">for</span> v <span class="kw">in</span> df.iloc[i]])
+        <span class="kw">if</span> any(k <span class="kw">in</span> row_str <span class="kw">for</span> k <span class="kw">in</span> MOIS_KW):
+            <span class="kw">return</span> i
+    <span class="kw">return</span> <span class="nb">0</span></code></pre>
+
+    <h3>parse_crc() — étapes</h3>
+    <table>
+      <tr><th>#</th><th>Action</th></tr>
+      <tr><td>1</td><td>Trouve la ligne avec le plus de mots-clés mois dans les 10 premières lignes</td></tr>
+      <tr><td>2</td><td>Lit Col B = indicateur, Col C = objectif, Col D+ = valeurs mensuelles</td></tr>
+      <tr><td>3</td><td>Ignore les lignes sans numérique (<code>_has_numeric</code>)</td></tr>
+      <tr><td>4</td><td>INSERT OR REPLACE dans <code>kpi_crc</code></td></tr>
+    </table>
+
+    <h3>parse_sat() et parse_sat_pro() — étapes</h3>
+    <table>
+      <tr><th>#</th><th>Action</th></tr>
+      <tr><td>1</td><td>Boucle sur toutes les feuilles Excel</td></tr>
+      <tr><td>2</td><td>Trouve la ligne des mois avec <code>_find_hrow()</code></td></tr>
+      <tr><td>3</td><td>Pour chaque ligne après : ignore si pas de numérique</td></tr>
+      <tr><td>4</td><td>Classifie : Col A dans <code>UC_MAPPING</code> → <code>is_uc=1</code>, sinon cherche dans <code>AGENCE_TO_UC</code></td></tr>
+      <tr><td>5</td><td>INSERT OR REPLACE dans <code>kpi_sat_v2</code> ou <code>kpi_sat_pro_v2</code></td></tr>
+    </table>
+  </section>
+
+  <section id="callbacks">
+    <h2>🔄 Callbacks Dash</h2>
+
+    <h3>Navigation (callback global)</h3>
+    <pre><code><span class="cm"># Entrées : 4 boutons | Sorties : style des 3 pages</span>
+@app.callback(
+    Output(<span class="str">"page-accueil"</span>,   <span class="str">"style"</span>),
+    Output(<span class="str">"page-dashboard"</span>, <span class="str">"style"</span>),
+    Output(<span class="str">"page-module"</span>,    <span class="str">"style"</span>),
+    Input(<span class="str">"btn-open-dashboard"</span>,       <span class="str">"n_clicks"</span>),
+    Input(<span class="str">"btn-open-module"</span>,          <span class="str">"n_clicks"</span>),
+    Input(<span class="str">"btn-retour-accueil"</span>,       <span class="str">"n_clicks"</span>),
+    Input(<span class="str">"btn-retour-accueil-module"</span>, <span class="str">"n_clicks"</span>),
+)</code></pre>
+
+    <h3>Callbacks du Module KPI</h3>
+    <table>
+      <tr><th>Fonction</th><th>Déclencheur</th><th>Effet principal</th></tr>
+      <tr><td><code>upload_crc</code></td><td>Upload sur <code>upload-crc</code></td><td>Parse + sauvegarde + reset composant</td></tr>
+      <tr><td><code>upload_sat</code></td><td>Upload sur <code>upload-sat</code></td><td>Idem pour SAT</td></tr>
+      <tr><td><code>upload_sat_pro</code></td><td>Upload sur <code>upload-sat-pro</code></td><td>Idem pour SAT PRO</td></tr>
+      <tr><td><code>refresh_uc_options</code></td><td>Changement onglet / upload SAT ou SAT PRO</td><td>Alimente le dropdown UC</td></tr>
+      <tr><td><code>refresh_agence_options</code></td><td>Sélection d'une UC</td><td>Filtre les agences de l'UC</td></tr>
+      <tr><td><code>toggle_uc_filters</code></td><td>Changement d'onglet</td><td>Affiche/masque filtres UC sur SAT et SAT PRO</td></tr>
+      <tr><td><code>render_tab</code></td><td>Onglet, filtres, uploads</td><td>Appelle <code>render_crc/sat/sat_pro()</code></td></tr>
+      <tr><td><code>export_excel</code></td><td>Clic "Exporter Excel"</td><td>Génère et télécharge fichier stylé</td></tr>
+    </table>
+  </section>
+
+  <section id="uc-mapping">
+    <h2>🗺 Mapping UC → Agences</h2>
+    <p>Défini statiquement dans le code (vers la <strong>ligne 478</strong>). Chercher <code>UC_MAPPING = {</code>.</p>
+    <pre><code>UC_MAPPING = {
+    <span class="str">"UC-ABIDJAN EST DEUX PLATEAUX"</span>: [
+        <span class="str">"AGHIEN"</span>, <span class="str">"COCODY VALLONS"</span>, <span class="str">"LYCEE TECHNIQUE"</span>,
+        <span class="str">"AGENCE COCODY CENTRE"</span>, <span class="str">"COCODY 2 PLATEAUX"</span>,
+        <span class="str">"RUE DES JARDINS"</span>, <span class="str">"ANGRE DJIBI CENTRE"</span>,
+    ],
+    <span class="str">"UC-ABIDJAN CENTRE"</span>:      [ <span class="nb">9</span> agences ],
+    <span class="str">"UC-ABIDJAN EST RIVIERA"</span>:  [ <span class="nb">6</span> agences ],
+    <span class="str">"UC-ABIDJAN NORD"</span>:         [ <span class="nb">9</span> agences ],
+    <span class="str">"UC-ABIDJAN OUEST"</span>:        [ <span class="nb">9</span> agences ],
+    <span class="str">"UC-ABIDJAN SUD"</span>:          [ <span class="nb">6</span> agences ],
+}
+<span class="cm"># Index inverse auto-généré — ne pas modifier</span>
+AGENCE_TO_UC = {ag: uc <span class="kw">for</span> uc, ags <span class="kw">in</span> UC_MAPPING.items() <span class="kw">for</span> ag <span class="kw">in</span> ags}</code></pre>
+
+    <div class="callout warning">
+      <div class="callout-icon">⚠️</div>
+      <p>Les noms doivent être en <strong>MAJUSCULES</strong> — le parser convertit automatiquement avec <code>.upper()</code> avant de chercher dans le mapping.</p>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- REPRISE EN MAIN -->
+  <section id="scenarios">
+    <h2>🔧 Scénarios de reprise en main</h2>
+    <p>Cas pratiques pour un développeur ou data analyst qui reprend le projet.</p>
+
+    <div class="scenario">
+      <div class="scenario-title">📍 Ajouter une nouvelle agence à une UC</div>
+      <ol>
+        <li>Ouvrir <code>reclam_final.py</code> et chercher <code>UC_MAPPING = {</code> (ligne ~478)</li>
+        <li>Ajouter le nom de l'agence en majuscules dans la liste de l'UC concernée</li>
+        <li>Sauvegarder et redéployer (ou redémarrer l'app en local)</li>
+        <li>Les données déjà en base seront automatiquement reclassifiées au prochain upload</li>
+      </ol>
+    </div>
+
+    <div class="scenario">
+      <div class="scenario-title">📍 Ajouter une nouvelle UC</div>
+      <ol>
+        <li>Ajouter une entrée dans <code>UC_MAPPING</code> avec le nom de l'UC et sa liste d'agences</li>
+        <li><code>AGENCE_TO_UC</code> est recalculé automatiquement — ne pas y toucher</li>
+        <li>Redémarrer l'application</li>
+      </ol>
+    </div>
+
+    <div class="scenario">
+      <div class="scenario-title">📍 Ajouter une vue graphique dans le Dashboard</div>
+      <ol>
+        <li>Créer une fonction <code>generate_view_5(data)</code> sur le modèle des 4 existantes (retourne une liste de <code>dbc.Col</code>)</li>
+        <li>Ajouter l'entrée dans <code>graph_mapping</code> : <code>"btn-5": generate_view_5</code></li>
+        <li>Ajouter le bouton dans le layout <code>dashboard</code> (bloc <code>dbc.Row</code> des boutons)</li>
+        <li>Ajouter les Inputs/Outputs correspondants dans le callback <code>update_all_filters</code></li>
+      </ol>
+    </div>
+
+    <div class="scenario">
+      <div class="scenario-title">📍 Modifier le lien de la ressource externe</div>
+      <ol>
+        <li>Chercher dans le code : <code>href="https://fr.wikipedia.org/wiki/Lionel_Messi"</code></li>
+        <li>Remplacer l'URL par la nouvelle</li>
+        <li>Redémarrer l'application</li>
+      </ol>
+    </div>
+
+    <div class="scenario">
+      <div class="scenario-title">📍 Corriger un mois chargé avec une erreur</div>
+      <ol>
+        <li>Identifier la table concernée : <code>kpi_crc</code>, <code>kpi_sat_v2</code> ou <code>kpi_sat_pro_v2</code></li>
+        <li>Supprimer les lignes du mois en question :</li>
+      </ol>
+      <pre><code><span class="kw">import</span> sqlite3
+con = sqlite3.connect(<span class="str">"kpi_historique.db"</span>)
+con.execute(<span class="str">"DELETE FROM kpi_sat_v2 WHERE mois='Avril 2026'"</span>)
+con.commit(); con.close()</code></pre>
+      <ol start="3"><li>Re-uploader le fichier corrigé depuis l'interface en sélectionnant le même mois</li></ol>
+    </div>
+
+    <div class="scenario">
+      <div class="scenario-title">📍 Ajouter un nouvel onglet dans le Module KPI</div>
+      <ol>
+        <li>Créer une table SQLite dans <code>init_db()</code></li>
+        <li>Créer un parser <code>parse_nouveautruc()</code> sur le modèle de <code>parse_sat()</code></li>
+        <li>Créer une zone d'upload dans le layout <code>module</code> avec <code>upload_zone("label", "upload-id", "icon")</code></li>
+        <li>Ajouter l'onglet dans <code>dbc.Tabs</code> avec un nouveau <code>tab_id</code></li>
+        <li>Créer <code>render_nouveautruc()</code> et l'appeler dans <code>render_tab()</code></li>
+        <li>Enregistrer le callback upload dans <code>register_kpi_callbacks()</code></li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="debug">
+    <h2>🐛 Débogage</h2>
+
+    <h3>Panneau de logs (Dashboard)</h3>
+    <p>Déplier <strong>"🔍 Logs de débogage"</strong> en bas de la zone principale. Le bouton <strong>"⚡ Tester les callbacks"</strong> affiche les versions Python, pandas et openpyxl installées.</p>
+
+    <h3>Problèmes courants</h3>
+    <table>
+      <tr><th>Symptôme</th><th>Cause probable</th><th>Solution</th></tr>
+      <tr><td>Upload sans réaction</td><td>Fichier > 50 MB ou package manquant</td><td>Vérifier la taille ; lancer le test callbacks pour voir les packages</td></tr>
+      <tr><td>En-têtes dans les données</td><td>Ligne des mois non détectée</td><td>Vérifier que le fichier contient JANV, FEV, MARS… (pas en abrégé différent)</td></tr>
+      <tr><td>Agences sans UC</td><td>Nom d'agence différent du mapping</td><td>Vérifier la casse et l'orthographe exacte dans <code>UC_MAPPING</code></td></tr>
+      <tr><td>SAT PRO affiche "Importez SAT"</td><td>Mauvaise fonction appelée dans <code>render_tab</code></td><td>Vérifier que <code>elif tab == "tab-sat-pro"</code> appelle <code>render_sat_pro()</code> et non <code>render_sat()</code></td></tr>
+      <tr><td>Export sans style</td><td>openpyxl trop ancien</td><td><code>pip install --upgrade openpyxl</code></td></tr>
+      <tr><td>Impossible de re-uploader</td><td>Mois/année non sélectionnés</td><td>Sélectionner le mois/année — le composant se réinitialise tout seul</td></tr>
+      <tr><td>Base SQLite introuvable</td><td>App lancée depuis un autre répertoire</td><td><code>DB_PATH</code> est relatif — lancer l'app depuis le dossier du projet</td></tr>
+    </table>
+
+    <h3>Inspecter la base depuis le terminal</h3>
+    <pre><code><span class="cm"># Lister les tables</span>
+sqlite3 kpi_historique.db <span class="str">".tables"</span>
+
+<span class="cm"># Voir les mois disponibles</span>
+sqlite3 kpi_historique.db <span class="str">"SELECT DISTINCT mois FROM kpi_sat_v2;"</span>
+
+<span class="cm"># Compter les lignes par feuille</span>
+sqlite3 kpi_historique.db \
+  <span class="str">"SELECT feuille, COUNT(*) FROM kpi_sat_v2 GROUP BY feuille;"</span></code></pre>
+  </section>
+
+  <section id="evolution">
+    <h2>🔮 Évolutions futures</h2>
+    <div class="cards-grid">
+      <div class="card"><div class="card-title">🌍 UCs provinciales</div><div class="card-desc">Ajouter UC-PROVINCE CENTRE-EST, SUD-OUEST, CENTRE-NORD, OUEST dans <code>UC_MAPPING</code> avec leurs agences.</div></div>
+      <div class="card"><div class="card-title">📊 Comparaison N vs N-1</div><div class="card-desc">Graphiques de comparaison mois vs même mois année précédente dans le module KPI.</div></div>
+      <div class="card"><div class="card-title">🔐 Authentification</div><div class="card-desc">Page de connexion avec rôles (admin, lecture seule) via Flask session.</div></div>
+      <div class="card"><div class="card-title">🗄 Migration PostgreSQL</div><div class="card-desc">Remplacer SQLite pour les plateformes cloud sans stockage fichier persistant.</div></div>
+      <div class="card"><div class="card-title">📧 Alertes seuils</div><div class="card-desc">Notification quand un indicateur dépasse un seuil (ex: taux hors délai > 20%).</div></div>
+      <div class="card"><div class="card-title">📱 Responsive mobile</div><div class="card-desc">Optimiser la sidebar et les graphiques pour tablette et mobile.</div></div>
+    </div>
+  </section>
+
+  <hr>
+  <p style="font-size:12px;color:var(--muted);text-align:center;padding-bottom:40px">
+    Plateforme SGCI — Documentation v1.0 — Juillet 2026<br>
+    Développé avec Python Dash · SQLite · openpyxl
+  </p>
+
+</main>
+
+<script>
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks  = document.querySelectorAll('nav a');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        const l = document.querySelector(`nav a[href="#${e.target.id}"]`);
+        if (l) l.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-20% 0px -70% 0px'});
+  sections.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
