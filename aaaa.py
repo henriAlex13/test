@@ -16,3 +16,27 @@ st.write("Config num_bord_col:", CONFIG_BT['num_bord_col'])
 st.write("Colonne présente:", CONFIG_BT['num_bord_col'] in df_bt_cumul.columns)
 if CONFIG_BT['num_bord_col'] in df_bt_cumul.columns:
     st.write("Valeurs:", df_bt_cumul[CONFIG_BT['num_bord_col']].unique())
+
+
+# Statistiques cumul
+nb_factures_initiales = len(df_bt)
+nb_factures_apres_cumul = len(df_bt_cumul)
+nb_cumul = nb_factures_initiales - nb_factures_apres_cumul
+
+# Récupérer numéro bordereau global depuis df_bt original
+num_bord_global = ''
+if CONFIG_BT['num_bord_col'] in df_bt.columns:
+    vals = df_bt[CONFIG_BT['num_bord_col']].dropna()
+    vals = vals[vals.astype(str).str.strip().isin(['', 'nan']) == False]
+    if len(vals) > 0:
+        num_bord_global = str(vals.iloc[0]).strip()
+
+
+
+
+df_base_centrale.loc[idx, 'CONSO'] = pd.to_numeric(conso_val, errors='coerce') or 0
+df_base_centrale.loc[idx, 'MONTANT'] = pd.to_numeric(montant_val, errors='coerce') or 0
+df_base_centrale.loc[idx, 'NUM_BORDEREAU'] = num_bord_global
+
+
+'NUM_BORDEREAU': num_bord_global
