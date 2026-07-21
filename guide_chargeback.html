@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Plateforme Ajustage VISA/MASTERCARD — Documentation</title>
+<style>
+  :root {
+    --sg-red: #e2001a;
+    --sg-black: #1a1a1a;
+    --sg-grey: #f4f4f6;
+    --sg-border: #ddd;
+    --sg-text: #262626;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: var(--sg-text);
+    background: var(--sg-grey);
+    display: flex;
+    min-height: 100vh;
+  }
+  nav {
+    width: 250px;
+    background: var(--sg-black);
+    color: white;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 20px 0;
+  }
+  nav .brand {
+    padding: 0 20px 20px 20px;
+    border-bottom: 1px solid #3a3a3a;
+    margin-bottom: 15px;
+  }
+  nav .brand h1 {
+    font-size: 16px;
+    margin: 0 0 4px 0;
+    color: white;
+  }
+  nav .brand span {
+    font-size: 12px;
+    color: #aaa;
+  }
+  nav .tabs {
+    display: flex;
+    padding: 0 15px 15px 15px;
+    gap: 8px;
+  }
+  nav .tab-btn {
+    flex: 1;
+    background: #2b2b2b;
+    color: #ccc;
+    border: none;
+    padding: 8px 4px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  nav .tab-btn.active {
+    background: var(--sg-red);
+    color: white;
+  }
+  nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0 10px;
+  }
+  nav ul li a {
+    display: block;
+    padding: 8px 10px;
+    color: #ccc;
+    text-decoration: none;
+    font-size: 13px;
+    border-radius: 6px;
+  }
+  nav ul li a:hover { background: #2b2b2b; color: white; }
+  nav ul li.section-title {
+    padding: 12px 10px 4px 10px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #777;
+  }
+  main {
+    flex: 1;
+    padding: 40px 60px;
+    max-width: 900px;
+  }
+  .page { display: none; }
+  .page.active { display: block; }
+  h2 {
+    color: var(--sg-black);
+    border-bottom: 3px solid var(--sg-red);
+    padding-bottom: 8px;
+    margin-top: 50px;
+  }
+  h2:first-of-type { margin-top: 0; }
+  h3 {
+    color: var(--sg-red);
+    margin-top: 30px;
+  }
+  h4 { margin-bottom: 6px; }
+  p, li { line-height: 1.6; font-size: 14.5px; }
+  code, .mono {
+    font-family: "Consolas", monospace;
+    background: #eee;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  pre {
+    background: #1e1e1e;
+    color: #d4d4d4;
+    padding: 14px 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .card {
+    background: white;
+    border: 1px solid var(--sg-border);
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin: 16px 0;
+  }
+  .step {
+    display: flex;
+    gap: 14px;
+    margin: 14px 0;
+    align-items: flex-start;
+  }
+  .step .num {
+    background: var(--sg-red);
+    color: white;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 13.5px;
+    background: white;
+  }
+  th, td {
+    border: 1px solid var(--sg-border);
+    padding: 8px 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th { background: #f0f0f2; }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge.ok { background: #e3f6e8; color: #1e7c3f; }
+  .badge.warn { background: #fdecea; color: var(--sg-red); }
+  .note {
+    background: #fff6e0;
+    border-left: 4px solid #e0a800;
+    padding: 10px 14px;
+    margin: 14px 0;
+    font-size: 13.5px;
+  }
+  .toc-back { font-size: 12px; color: #888; }
+  figure.mockup {
+    margin: 18px 0 24px 0;
+    border: 1px solid var(--sg-border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  }
+  figure.mockup svg { display: block; width: 100%; height: auto; }
+  figure.mockup figcaption {
+    font-size: 12px;
+    color: #777;
+    padding: 8px 14px;
+    border-top: 1px solid var(--sg-border);
+    background: #fafafa;
+  }
+  figure.mockup figcaption::before { content: "🖼 Maquette illustrative — "; }
+  footer {
+    margin-top: 60px;
+    padding-top: 15px;
+    border-top: 1px solid var(--sg-border);
+    font-size: 12px;
+    color: #888;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand">
+    <h1>🏦 Plateforme Ajustage</h1>
+    <span>VISA / MASTERCARD — SGCI</span>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showPage('user')" id="btn-user">Utilisateur</button>
+    <button class="tab-btn" onclick="showPage('tech')" id="btn-tech">Technique</button>
+  </div>
+
+  <ul id="nav-user">
+    <li class="section-title">Guide utilisateur</li>
+    <li><a href="#u-intro">Présentation</a></li>
+    <li><a href="#u-connexion">Connexion</a></li>
+    <li><a href="#u-extraction">Extraction d'un fichier</a></li>
+    <li><a href="#u-verification">Vérification / ajustement</a></li>
+    <li><a href="#u-sauvegarde">Sauvegarder</a></li>
+    <li><a href="#u-cloture">Clôturer</a></li>
+    <li><a href="#u-telechargement">Télécharger</a></li>
+    <li><a href="#u-historique">Historique</a></li>
+    <li><a href="#u-faq">Questions fréquentes</a></li>
+  </ul>
+
+  <ul id="nav-tech" style="display:none;">
+    <li class="section-title">Guide technique</li>
+    <li><a href="#t-archi">Architecture générale</a></li>
+    <li><a href="#t-extraction">Module extraction</a></li>
+    <li><a href="#t-traitement">Module traitement</a></li>
+    <li><a href="#t-export">Module export</a></li>
+    <li><a href="#t-txt">Format fichier TXT</a></li>
+    <li><a href="#t-bdd">Base de données SQLite</a></li>
+    <li><a href="#t-app">Application Streamlit</a></li>
+    <li><a href="#t-deps">Dépendances</a></li>
+    <li><a href="#t-maintenance">Points de vigilance / backup</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<!-- ============================================================ -->
+<!-- GUIDE UTILISATEUR -->
+<!-- ============================================================ -->
+<div class="page active" id="page-user">
+
+  <h2 id="u-intro">Présentation</h2>
+  <p>La <strong>Plateforme Ajustage</strong> est une application interne SGCI permettant de traiter les
+  opérations de <strong>chargeback VISA et Mastercard</strong> : import du fichier d'ajustage, vérification
+  et correction des montants, génération des pièces comptables, et clôture avec archivage.</p>
+  <div class="card">
+    <strong>Circuit global :</strong>
+    <p style="margin:8px 0 0 0;">Fichier VISA/Mastercard (Excel protégé) → Extraction → Vérification/ajustement →
+    Sauvegarde en base → Clôture (génération des pièces comptables + fichier global + TXT) → Téléchargement des livrables.</p>
+  </div>
+
+  <div class="note">🖼 Les illustrations ci-dessous sont des <strong>maquettes reconstituées à partir du code</strong>
+  de l'application (et non de vraies captures d'écran). Elles peuvent être remplacées par de véritables
+  captures dès qu'elles seront disponibles.</div>
+
+  <h2 id="u-connexion">Connexion</h2>
+  <div class="step"><div class="num">1</div><p>Ouvrir l'application dans le navigateur.</p></div>
+  <div class="step"><div class="num">2</div><p>Saisir l'identifiant et le mot de passe attribués par l'administrateur.</p></div>
+  <div class="step"><div class="num">3</div><p>Une fois connecté, le menu latéral affiche les modules disponibles selon le profil de l'utilisateur : <span class="badge ok">VISA</span> et/ou <span class="badge ok">MASTERCARD</span>.</p></div>
+  <p>Le bouton <strong>🚪 Déconnexion</strong> en bas du menu latéral permet de fermer la session à tout moment.</p>
+
+  <figure class="mockup">
+    <svg viewBox="0 0 800 360" xmlns="http://www.w3.org/2000/svg">
+      <rect width="800" height="360" fill="#f4f4f6"/>
+      <rect x="250" y="60" width="300" height="240" rx="14" fill="white" stroke="#ddd"/>
+      <text x="400" y="105" text-anchor="middle" font-family="Segoe UI, Arial" font-size="20" fill="#1a1a1a">🏦 SGCI</text>
+      <text x="400" y="128" text-anchor="middle" font-family="Segoe UI, Arial" font-size="12" fill="#888">Plateforme Ajustage</text>
+      <text x="280" y="160" font-family="Segoe UI, Arial" font-size="11" fill="#666">Identifiant</text>
+      <rect x="280" y="168" width="240" height="28" rx="5" fill="#f0f0f2" stroke="#ddd"/>
+      <text x="280" y="212" font-family="Segoe UI, Arial" font-size="11" fill="#666">Mot de passe</text>
+      <rect x="280" y="220" width="240" height="28" rx="5" fill="#f0f0f2" stroke="#ddd"/>
+      <text x="290" y="238" font-family="Segoe UI, Arial" font-size="13" fill="#999">••••••••</text>
+      <rect x="280" y="262" width="240" height="32" rx="6" fill="#e2001a"/>
+      <text x="400" y="283" text-anchor="middle" font-family="Segoe UI, Arial" font-size="13" fill="white" font-weight="bold">Se connecter</text>
+    </svg>
+    <figcaption>Écran de connexion</figcaption>
+  </figure>
+
+  <h2 id="u-extraction">Extraction d'un fichier</h2>
+  <div class="step"><div class="num">1</div><p>Choisir le module (VISA ou MASTERCARD) dans le menu latéral.</p></div>
+  <div class="step"><div class="num">2</div><p>Importer le fichier Excel d'ajustage reçu (fichier protégé par mot de passe, déchiffré automatiquement par l'application).</p></div>
+  <div class="step"><div class="num">3</div><p>L'application lit automatiquement la date d'ajustage et la devise depuis la feuille "Ajustage VISA", puis parcourt les feuilles de chargeback (Achat, ATM, Cash Advance — EMIS/RECU) pour en extraire les montants.</p></div>
+  <div class="step"><div class="num">4</div><p>Cliquer sur <strong>"Extraction réalisée"</strong> une fois le traitement terminé — un message de confirmation s'affiche.</p></div>
+  <div class="note">⚠️ Le module MASTERCARD n'est pas encore disponible dans la version actuelle de l'application.</div>
+
+  <figure class="mockup">
+    <svg viewBox="0 0 800 340" xmlns="http://www.w3.org/2000/svg">
+      <rect width="800" height="340" fill="#f4f4f6"/>
+      <rect x="0" y="0" width="190" height="340" fill="#1a1a1a"/>
+      <text x="95" y="40" text-anchor="middle" font-family="Segoe UI, Arial" font-size="15" fill="white">🏦 SGCI</text>
+      <text x="95" y="58" text-anchor="middle" font-family="Segoe UI, Arial" font-size="10" fill="#aaa">Plateforme Ajustage</text>
+      <text x="20" y="90" font-family="Segoe UI, Arial" font-size="10" fill="#999">Choisir un module</text>
+      <circle cx="26" cy="108" r="6" fill="#e2001a"/>
+      <text x="40" y="112" font-family="Segoe UI, Arial" font-size="12" fill="white">VISA</text>
+      <circle cx="26" cy="134" r="6" fill="none" stroke="#777"/>
+      <text x="40" y="138" font-family="Segoe UI, Arial" font-size="12" fill="#999">MASTERCARD</text>
+      <rect x="15" y="300" width="160" height="26" rx="6" fill="#2b2b2b"/>
+      <text x="95" y="317" text-anchor="middle" font-family="Segoe UI, Arial" font-size="11" fill="#ccc">🚪 Déconnexion</text>
+
+      <text x="220" y="45" font-family="Segoe UI, Arial" font-size="16" fill="#1a1a1a" font-weight="bold">Ajustage VISA</text>
+      <rect x="220" y="70" width="540" height="90" rx="10" fill="white" stroke="#ddd" stroke-dasharray="5,4"/>
+      <text x="490" y="105" text-anchor="middle" font-family="Segoe UI, Arial" font-size="12" fill="#888">⬆ Glisser-déposer ou parcourir</text>
+      <text x="490" y="124" text-anchor="middle" font-family="Segoe UI, Arial" font-size="11" fill="#aaa">Ajustage_VISA_xxxxx.xlsx</text>
+      <rect x="220" y="180" width="170" height="30" rx="6" fill="#e2001a"/>
+      <text x="305" y="200" text-anchor="middle" font-family="Segoe UI, Arial" font-size="12" fill="white" font-weight="bold">Extraction réalisée ✓</text>
+    </svg>
+    <figcaption>Menu latéral et import du fichier VISA</figcaption>
+  </figure>
+
+  <h2 id="u-verification">Vérification / ajustement</h2>
+  <p>Le tableau <strong>"Résultat VISA"</strong> affiche chaque opération extraite. Certaines colonnes sont
+  modifiables (notamment le montant), les autres sont verrouillées pour éviter les erreurs de saisie.</p>
+  <table>
+    <tr><th>Colonne</th><th>Modifiable ?</th></tr>
+    <tr><td>Date d'ajustage, Libellé complémentaire, Type, Module, Numéro de compte, Montant source/destination, Devise, Montant</td><td><span class="badge warn">Non</span></td></tr>
+    <tr><td>Montant (modifiable)</td><td><span class="badge ok">Oui</span></td></tr>
+  </table>
+  <p>Trois indicateurs sont affichés en temps réel :</p>
+  <ul>
+    <li><strong>Total Original</strong> : somme des montants extraits</li>
+    <li><strong>Total Modifié</strong> : somme après ajustement manuel</li>
+    <li><strong>Écart</strong> : différence entre les deux</li>
+  </ul>
+
+  <figure class="mockup">
+    <svg viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg">
+      <rect width="800" height="300" fill="#f4f4f6"/>
+      <text x="20" y="30" font-family="Segoe UI, Arial" font-size="14" fill="#1a1a1a" font-weight="bold">Résultat VISA</text>
+      <rect x="20" y="45" width="760" height="130" rx="6" fill="white" stroke="#ddd"/>
+      <rect x="20" y="45" width="760" height="22" fill="#f0f0f2"/>
+      <text x="35" y="60" font-family="Segoe UI, Arial" font-size="9" fill="#666">Date</text>
+      <text x="140" y="60" font-family="Segoe UI, Arial" font-size="9" fill="#666">Module</text>
+      <text x="260" y="60" font-family="Segoe UI, Arial" font-size="9" fill="#666">Compte</text>
+      <text x="400" y="60" font-family="Segoe UI, Arial" font-size="9" fill="#666">Montant</text>
+      <text x="540" y="60" font-family="Segoe UI, Arial" font-size="9" fill="#e2001a" font-weight="bold">Montant (modifiable)</text>
+      <text x="700" y="60" font-family="Segoe UI, Arial" font-size="9" fill="#666">Devise</text>
+      <g font-family="Segoe UI, Arial" font-size="9" fill="#444">
+        <text x="35" y="85">12/07/2026</text><text x="140" y="85">CHBK ACHAT</text><text x="260" y="85">102345 6789</text><text x="400" y="85">150 000</text><text x="700" y="85">001</text>
+        <text x="35" y="110">12/07/2026</text><text x="140" y="110">CHBK ATM</text><text x="260" y="110">445566 1122</text><text x="400" y="110">75 000</text><text x="700" y="110">001</text>
+        <text x="35" y="135">12/07/2026</text><text x="140" y="135">CHBK CASH ADV</text><text x="260" y="135">998877 3344</text><text x="400" y="135">32 500</text><text x="700" y="135">001</text>
+      </g>
+      <rect x="535" y="75" width="90" height="16" rx="3" fill="#fdecea"/>
+      <rect x="535" y="100" width="90" height="16" rx="3" fill="#fdecea"/>
+      <rect x="535" y="125" width="90" height="16" rx="3" fill="#fdecea"/>
+      <text x="540" y="87" font-family="Segoe UI, Arial" font-size="9" fill="#e2001a">150 000</text>
+      <text x="540" y="112" font-family="Segoe UI, Arial" font-size="9" fill="#e2001a">75 000</text>
+      <text x="540" y="137" font-family="Segoe UI, Arial" font-size="9" fill="#e2001a">30 000</text>
+
+      <rect x="20" y="195" width="240" height="70" rx="8" fill="white" stroke="#ddd"/>
+      <text x="40" y="218" font-family="Segoe UI, Arial" font-size="10" fill="#888">Total Original</text>
+      <text x="40" y="245" font-family="Segoe UI, Arial" font-size="16" fill="#1a1a1a" font-weight="bold">257 500</text>
+      <rect x="280" y="195" width="240" height="70" rx="8" fill="white" stroke="#ddd"/>
+      <text x="300" y="218" font-family="Segoe UI, Arial" font-size="10" fill="#888">Total Modifié</text>
+      <text x="300" y="245" font-family="Segoe UI, Arial" font-size="16" fill="#1a1a1a" font-weight="bold">255 000</text>
+      <rect x="540" y="195" width="240" height="70" rx="8" fill="white" stroke="#ddd"/>
+      <text x="560" y="218" font-family="Segoe UI, Arial" font-size="10" fill="#888">Écart</text>
+      <text x="560" y="245" font-family="Segoe UI, Arial" font-size="16" fill="#e2001a" font-weight="bold">-2 500</text>
+    </svg>
+    <figcaption>Tableau de résultats éditable et indicateurs de totaux</figcaption>
+  </figure>
+
+  <h2 id="u-sauvegarde">Sauvegarder</h2>
+  <p>Le bouton <strong>💾 Sauvegarder</strong> enregistre l'extraction (et les ajustements effectués) dans
+  la base de données. Cette étape est obligatoire avant de pouvoir clôturer ou télécharger.</p>
+
+  <h2 id="u-cloture">Clôturer</h2>
+  <p>Une fois la sauvegarde effectuée, le bouton <strong>✅ Clôturer</strong> devient disponible. Il déclenche :</p>
+  <ul>
+    <li>La génération de la pièce comptable Excel</li>
+    <li>La génération du fichier global consolidé</li>
+    <li>La génération du fichier TXT d'intégration comptable</li>
+    <li>L'archivage de l'ensemble dans un dossier horodaté (<span class="mono">archives/&lt;date&gt;/&lt;horodatage&gt;</span>)</li>
+  </ul>
+  <p>Un fichier ZIP contenant tous les livrables est ensuite proposé au téléchargement : <strong>✅ Télécharger le dossier de clôture</strong>.</p>
+
+  <figure class="mockup">
+    <svg viewBox="0 0 800 170" xmlns="http://www.w3.org/2000/svg">
+      <rect width="800" height="170" fill="#f4f4f6"/>
+      <rect x="30" y="30" width="220" height="34" rx="6" fill="#e2001a"/>
+      <text x="140" y="52" text-anchor="middle" font-family="Segoe UI, Arial" font-size="12" fill="white" font-weight="bold">💾 Sauvegarder</text>
+      <rect x="290" y="30" width="220" height="34" rx="6" fill="#2b7a3f"/>
+      <text x="400" y="52" text-anchor="middle" font-family="Segoe UI, Arial" font-size="12" fill="white" font-weight="bold">✅ Clôturer</text>
+      <rect x="550" y="30" width="220" height="34" rx="6" fill="#444"/>
+      <text x="660" y="52" text-anchor="middle" font-family="Segoe UI, Arial" font-size="12" fill="white" font-weight="bold">📥 Télécharger</text>
+
+      <rect x="30" y="95" width="740" height="44" rx="8" fill="#e3f6e8" stroke="#1e7c3f"/>
+      <text x="45" y="122" font-family="Segoe UI, Arial" font-size="12" fill="#1e7c3f">✅ Ajustage clôturé — Télécharger le dossier de clôture (ZIP)</text>
+    </svg>
+    <figcaption>Actions Sauvegarder / Clôturer / Télécharger et confirmation de clôture</figcaption>
+  </figure>
+
+  <h2 id="u-telechargement">Télécharger</h2>
+  <p>Le bouton <strong>📥 Télécharger</strong> permet de récupérer individuellement :</p>
+  <ul>
+    <li>Le fichier d'extraction (Excel)</li>
+    <li>Les pièces comptables générées</li>
+    <li>Le fichier global consolidé</li>
+  </ul>
+
+  <h2 id="u-historique">Historique</h2>
+  <p>L'application conserve un historique de toutes les extractions, des documents générés et des
+  téléchargements effectués, consultable selon les droits du profil utilisateur (filtrage possible).</p>
+
+  <h2 id="u-faq">Questions fréquentes</h2>
+  <div class="card">
+    <strong>Le fichier importé ne se déchiffre pas, que faire ?</strong>
+    <p>Vérifier que le fichier correspond bien au format attendu (fichier "Ajustage VISA"). Si le fichier
+    n'est pas protégé par mot de passe, l'application le lit directement sans déchiffrement.</p>
+  </div>
+  <div class="card">
+    <strong>Je ne vois pas le bouton "Clôturer".</strong>
+    <p>Ce bouton n'apparaît qu'après avoir cliqué sur "Sauvegarder" au moins une fois pour l'extraction en cours.</p>
+  </div>
+
+</div>
+
+<!-- ============================================================ -->
+<!-- GUIDE TECHNIQUE -->
+<!-- ============================================================ -->
+<div class="page" id="page-tech">
+
+  <h2 id="t-archi">Architecture générale</h2>
+  <p>L'application est un projet Streamlit organisé en modules fonctionnels, avec une persistance SQLite :</p>
+  <pre>projet/
+├── extraction/
+│   ├── visa.py              # extraction des données VISA (déchiffrement, lecture Excel)
+│   └── mastercard.py        # non implémenté ("bientôt")
+├── exports/
+│   ├── export_piece_extraction.py   # normalisation, regroupement, génération du DataFrame comptable
+│   ├── export_piece_comptable.py    # génération de la pièce comptable Excel (mise en forme copiée)
+│   ├── export_fichierglobal.py      # génération du fichier global consolidé
+│   └── export_fichier_global_txt.py # génération du fichier TXT plat (intégration comptable)
+├── base de données (SQLite)  # utilisateurs, historique, documents générés, téléchargements
+└── app principale (Streamlit)</pre>
+
+  <h2 id="t-extraction">Module extraction — <span class="mono">extraction/visa.py</span></h2>
+  <table>
+    <tr><th>Fonction</th><th>Rôle</th></tr>
+    <tr><td class="mono">extraire_visa(uploaded_file)</td><td>Fonction principale. Déchiffre le fichier (mot de passe <span class="mono">SGCI2020+</span> via <code>msoffcrypto</code>), lit la date d'ajustage et la devise (cellules A3 / F5 de la feuille "Ajustage VISA"), identifie les modules de chargeback actifs (nombre &gt; 0), puis parcourt chaque feuille correspondante pour extraire les montants source/destination.</td></tr>
+    <tr><td class="mono">format_montant(valeur)</td><td>Convertit un montant brut (centimes) en chaîne formatée avec séparateur de milliers et virgule décimale.</td></tr>
+    <tr><td class="mono">format_account(numero)</td><td>Formate un numéro de compte (suppression des 3 derniers zéros si présents, découpage en 6+4 chiffres).</td></tr>
+    <tr><td class="mono">construire_libelle(module, account, date_ajustage)</td><td>Construit le libellé de l'opération selon la nature (CHBK ACHAT / CHBK ATM / CHBK CASH ADV) et la date.</td></tr>
+  </table>
+  <div class="note">La logique de calcul du montant diffère selon le sens de l'opération : pour les opérations <span class="mono">EMIS</span>, le montant source est utilisé directement (devise = 1) ; pour les autres, le montant destination est converti avec le taux de devise lu en F5.</div>
+
+  <h2 id="t-traitement">Module traitement — <span class="mono">exports/export_piece_extraction.py</span></h2>
+  <p>Regroupe les fonctions de nettoyage et de structuration des données avant génération des documents :</p>
+  <table>
+    <tr><th>Fonction</th><th>Rôle</th></tr>
+    <tr><td class="mono">normaliser_texte / normaliser_nom_colonne</td><td>Nettoie les chaînes et harmonise les noms de colonnes.</td></tr>
+    <tr><td class="mono">valeur_est_vide / convertir_montant</td><td>Gestion des valeurs manquantes et conversion sécurisée des montants.</td></tr>
+    <tr><td class="mono">choisir_montant(montant, montant_modifiable, numero_ligne_excel)</td><td>Arbitre entre montant original et montant ajusté manuellement.</td></tr>
+    <tr><td class="mono">extraire_date_extraction / extraire_nature_operation</td><td>Déduisent la date et la nature de l'opération à partir des données.</td></tr>
+    <tr><td class="mono">grouper_operations_par_nature</td><td>Regroupe les opérations par nature pour la génération comptable.</td></tr>
+    <tr><td class="mono">creer_dataframe_comptable_compact_par_nature</td><td>Construit le DataFrame comptable final utilisé pour la génération des pièces.</td></tr>
+    <tr><td class="mono">verifier_equilibre_dataframe</td><td>Contrôle l'équilibre débit/crédit du DataFrame avant génération.</td></tr>
+  </table>
+
+  <h2 id="t-export">Module export</h2>
+  <h3>export_piece_comptable.py</h3>
+  <p>Génère la pièce comptable en partant d'un modèle Excel existant : copie du style de cellule/ligne
+  (<span class="mono">copier_style_cellule</span>, <span class="mono">copier_style_ligne</span>), recherche de la ligne de total
+  (<span class="mono">chercher_ligne_total</span>), ajustement du nombre de lignes du tableau
+  (<span class="mono">ajuster_lignes_tableau</span>), nettoyage de la zone de données puis collage
+  cellule par cellule du DataFrame comptable (<span class="mono">coller_dataframe_cellule_par_cellule</span>).
+  Fonction d'entrée : <span class="mono">generer_piece_comptable(fichier)</span>, qui peut produire plusieurs
+  pièces (<span class="mono">generer_piece_unique</span> par lot).</p>
+
+  <h3>export_fichierglobal.py</h3>
+  <p>Fonction <span class="mono">generer_fichier_global(fichier_source)</span> : consolide les pièces comptables
+  générées en un fichier global unique.</p>
+
+  <h3>export_fichier_global_txt.py</h3>
+  <p>Convertit le fichier global (Excel) en fichier TXT plat pour intégration comptable :</p>
+  <ul>
+    <li>Recherche automatique du dernier fichier <span class="mono">PIECE_COMPTABLE_EMIS_*.xlsx</span> dans <span class="mono">data/output</span> (par date de modification)</li>
+    <li>Lecture sans en-tête, colonnes renommées manuellement (16 colonnes : code agence, numéro de compte, sens, montant, libellé — débit et crédit)</li>
+    <li>Une ligne Excel produit une ou deux lignes TXT (une par sens D/C si les colonnes correspondantes sont renseignées)</li>
+  </ul>
+
+  <h2 id="t-txt">Format du fichier TXT généré</h2>
+  <p>Chaque ligne est un enregistrement à champs positionnels séparés par <span class="mono">|</span>, construit par
+  <span class="mono">generer_ligne_txt(...)</span> :</p>
+  <table>
+    <tr><th>Champ</th><th>Format / valeur</th></tr>
+    <tr><td>Code agence</td><td><span class="mono">"00" + code</span> (ex: 00123)</td></tr>
+    <tr><td>Code devise</td><td>fixe <span class="mono">"001"</span></td></tr>
+    <tr><td>Numéro de compte</td><td>9 chiffres, complété par des zéros à gauche</td></tr>
+    <tr><td>Code opération</td><td>fixe <span class="mono">"868"</span></td></tr>
+    <tr><td>Matricule</td><td>fixe <span class="mono">"4528"</span></td></tr>
+    <tr><td>Date clôture / Date ajustage</td><td>format <span class="mono">JJ/MM/AAAA</span>, date du jour</td></tr>
+    <tr><td>Montant</td><td>entier</td></tr>
+    <tr><td>Sens</td><td><span class="mono">D</span> ou <span class="mono">C</span></td></tr>
+    <tr><td>Libellé, référence</td><td>référence = <span class="mono">"CGB" + date d'ajustage sans "/"</span></td></tr>
+    <tr><td>Champs techniques restants</td><td>valeurs fixes/vides (0,00 ; N ; 0 ; etc.) selon un format imposé par le système comptable cible</td></tr>
+  </table>
+  <div class="note">⚠️ Ce format positionnel est probablement dicté par un système comptable externe (cœur bancaire).
+  Toute modification de l'ordre ou du nombre de champs doit être validée avec l'équipe comptabilité avant mise en production.</div>
+
+  <h2 id="t-bdd">Base de données SQLite</h2>
+  <p>La persistance est assurée via SQLite (<span class="mono">get_connection()</span> / <span class="mono">creer_base()</span>). Tables et fonctions associées :</p>
+  <table>
+    <tr><th>Domaine</th><th>Fonctions principales</th></tr>
+    <tr><td>Utilisateurs</td><td><span class="mono">creer_admin, verifier_user, charger_users, ajouter_user, modifier_utilisateur, supprimer_utilisateur, obtenir_profil_user</span></td></tr>
+    <tr><td>Extractions</td><td><span class="mono">sauvegarder_extraction, charger_historique, charger_lignes_modifiees, charger_extraction_detail, passer_en_extrait, charger_historique_filtre, charger_historique_complet</span></td></tr>
+    <tr><td>Documents générés</td><td><span class="mono">enregistrer_document_genere, charger_documents_generes</span></td></tr>
+    <tr><td>Téléchargements</td><td><span class="mono">enregistrer_telechargement, charger_historique_telechargements</span></td></tr>
+  </table>
+
+  <h2 id="t-app">Application Streamlit principale</h2>
+  <ul>
+    <li><span class="mono">st.set_page_config(...)</span> : configuration de la page</li>
+    <li>Authentification puis affichage conditionnel du menu selon le profil (options VISA / MASTERCARD)</li>
+    <li>Sidebar avec habillage SGCI (logo, titre "Plateforme Ajustage") et bouton de déconnexion</li>
+    <li><span class="mono">st.data_editor</span> pour l'édition contrôlée du tableau de résultats (colonnes verrouillées listées explicitement)</li>
+    <li>Calcul en direct des totaux et de l'écart via <span class="mono">st.metric</span></li>
+    <li>Trois actions (<span class="mono">sauvegarder / cloturer / telecharger</span>) pilotées par des <span class="mono">st.button</span> et l'état de session <span class="mono">st.session_state</span> (notamment <span class="mono">sauvegarde_ok</span> et <span class="mono">extraction_id</span>)</li>
+    <li>À la clôture : génération des pièces + fichier global, archivage disque (<span class="mono">shutil.copy2</span>), constitution d'un ZIP en mémoire (<span class="mono">BytesIO</span>) proposé au téléchargement</li>
+  </ul>
+
+  <h2 id="t-deps">Dépendances principales</h2>
+  <table>
+    <tr><th>Librairie</th><th>Usage</th></tr>
+    <tr><td class="mono">streamlit</td><td>Interface utilisateur</td></tr>
+    <tr><td class="mono">pandas</td><td>Manipulation des données tabulaires</td></tr>
+    <tr><td class="mono">openpyxl</td><td>Lecture/écriture Excel, styles de cellules</td></tr>
+    <tr><td class="mono">msoffcrypto-tool</td><td>Déchiffrement des fichiers Excel protégés par mot de passe</td></tr>
+    <tr><td class="mono">sqlite3</td><td>Base de données locale (utilisateurs, historique)</td></tr>
+    <tr><td class="mono">zipfile / shutil / io / pathlib / datetime</td><td>Génération d'archives, gestion des fichiers et horodatage</td></tr>
+  </table>
+
+  <h2 id="t-maintenance">Points de vigilance pour le backup / la maintenance</h2>
+  <ul>
+    <li><strong>Mot de passe en clair</strong> : le mot de passe de déchiffrement (<span class="mono">SGCI2020+</span>) est actuellement codé en dur dans <span class="mono">extraction/visa.py</span> — à externaliser (variable d'environnement / fichier de config) pour toute évolution.</li>
+    <li><strong>Base SQLite</strong> : fichier local — s'assurer qu'il est bien inclus dans la sauvegarde (utilisateurs, historique, documents générés non récupérables autrement).</li>
+    <li><strong>Dossier <span class="mono">archives/</span></strong> : contient l'ensemble des pièces comptables et fichiers globaux clôturés, organisés par date puis horodatage — à sauvegarder avec la base pour garder la cohérence entre historique et fichiers physiques.</li>
+    <li><strong>Dossier <span class="mono">data/output</span></strong> : contient les derniers fichiers <span class="mono">PIECE_COMPTABLE_EMIS_*.xlsx</span> utilisés par la génération du TXT (recherche par date de modification) — sensible à l'ordre/à la présence des fichiers.</li>
+    <li><strong>Module MASTERCARD</strong> : non implémenté à ce jour, à prévoir dans une prochaine itération.</li>
+    <li><strong>Modèle Excel de pièce comptable</strong> : la génération dépend d'un fichier modèle dont la mise en forme est copiée cellule par cellule — toute modification de la structure du modèle doit être répercutée dans <span class="mono">export_piece_comptable.py</span>.</li>
+  </ul>
+
+  <footer>Documentation générée à partir de l'analyse du code source du projet — à mettre à jour à chaque évolution majeure.</footer>
+
+</div>
+
+</main>
+
+<script>
+function showPage(name) {
+  document.getElementById('page-user').classList.toggle('active', name === 'user');
+  document.getElementById('page-tech').classList.toggle('active', name === 'tech');
+  document.getElementById('btn-user').classList.toggle('active', name === 'user');
+  document.getElementById('btn-tech').classList.toggle('active', name === 'tech');
+  document.getElementById('nav-user').style.display = (name === 'user') ? 'block' : 'none';
+  document.getElementById('nav-tech').style.display = (name === 'tech') ? 'block' : 'none';
+}
+</script>
+
+</body>
+</html>
