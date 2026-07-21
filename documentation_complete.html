@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Documentation Complète — Système de Surveillance SWIFT Automatisée</title>
+<style>
+  :root{
+    --tech:#1a3c6e; --tech-accent:#2b7de9;
+    --user:#0f6e4f; --user-accent:#17a374;
+    --backup:#7a3c1e; --backup-accent:#d97b3f;
+    --bg:#f7f9fb; --border:#dde3ec; --text:#1f2a37; --muted:#5b6b7c;
+  }
+  *{box-sizing:border-box;}
+  body{font-family:"Segoe UI", Arial, sans-serif; margin:0; background:var(--bg); color:var(--text); line-height:1.65;}
+
+  header.hero{
+    background:linear-gradient(135deg,#1a3c6e 0%,#0f6e4f 50%,#7a3c1e 100%);
+    color:#fff; padding:50px 60px;
+  }
+  header.hero h1{margin:0 0 8px; font-size:30px;}
+  header.hero p{margin:0; opacity:0.92; font-size:15px;}
+
+  nav.toc{
+    background:#fff; border-bottom:1px solid var(--border); padding:16px 60px;
+    position:sticky; top:0; z-index:10; box-shadow:0 2px 6px rgba(0,0,0,0.05);
+    display:flex; gap:26px; flex-wrap:wrap; font-size:14px; font-weight:600;
+  }
+  nav.toc a{text-decoration:none; padding:4px 0;}
+  nav.toc a.tech{color:var(--tech);}
+  nav.toc a.user{color:var(--user);}
+  nav.toc a.backup{color:var(--backup);}
+  nav.toc a:hover{text-decoration:underline;}
+
+  main{max-width:920px; margin:0 auto; padding:40px 60px 100px;}
+
+  section.part{margin-bottom:20px;}
+  .part-header{
+    padding:26px 32px; border-radius:10px; color:#fff; margin:60px 0 30px;
+  }
+  .part-header.tech{background:linear-gradient(135deg,var(--tech),var(--tech-accent));}
+  .part-header.user{background:linear-gradient(135deg,var(--user),var(--user-accent));}
+  .part-header.backup{background:linear-gradient(135deg,var(--backup),var(--backup-accent));}
+  .part-header h2{margin:0 0 6px; font-size:24px; border:none; padding:0; color:#fff;}
+  .part-header p{margin:0; opacity:0.9; font-size:14px;}
+
+  h3{font-size:19px; margin-top:34px;}
+  .tech h3, h3.tech{color:var(--tech);}
+  .user h3, h3.user{color:var(--user);}
+  .backup h3, h3.backup{color:var(--backup);}
+
+  h4{font-size:16px; margin-top:22px;}
+
+  table{width:100%; border-collapse:collapse; margin:14px 0; font-size:14px;}
+  th,td{border:1px solid var(--border); padding:9px 12px; text-align:left; vertical-align:top;}
+  tr:nth-child(even){background:#fafbfd;}
+
+  .tech-block th{background:#eef3fb; color:var(--tech);}
+  .user-block th{background:#eaf5f0; color:var(--user);}
+  .backup-block th{background:#f6ebe0; color:var(--backup);}
+
+  code{background:#eef1f6; padding:2px 6px; border-radius:4px; font-family:Consolas,monospace; font-size:13px;}
+  .tech-block code{color:var(--tech);}
+  .user-block code{background:#eaf5f0; color:var(--user);}
+  .backup-block code{background:#f6ebe0; color:var(--backup);}
+
+  pre{background:#10131a; color:#dce6f2; padding:16px 18px; border-radius:8px; overflow-x:auto; font-size:13px;}
+  pre code{background:none; color:inherit; padding:0;}
+
+  .callout{border-left:4px solid; padding:14px 18px; border-radius:4px; margin:14px 0; font-size:14px;}
+  .callout.tech{background:#eef6ff; border-left-color:var(--tech-accent);}
+  .callout.user{background:#eafaf3; border-left-color:var(--user-accent);}
+  .callout.backup{background:#fdf1e6; border-left-color:var(--backup-accent);}
+  .callout.warn{background:#fff6ec; border-left-color:#e0912b;}
+  .callout.danger{background:#fdecec; border-left-color:#d64545;}
+
+  .flow{display:flex; flex-wrap:wrap; gap:10px; margin:20px 0;}
+  .flow div{
+    background:#fff; border:1px solid var(--border); border-radius:8px; padding:12px 16px;
+    font-size:13px; flex:1 1 150px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.04);
+  }
+  .flow span{color:var(--tech-accent); font-weight:700; display:block; margin-bottom:4px;}
+
+  .step{
+    background:#fff; border:1px solid var(--border); border-radius:10px; padding:22px 26px;
+    margin-bottom:22px; box-shadow:0 1px 4px rgba(0,0,0,0.04); position:relative;
+  }
+  .step-num{
+    position:absolute; top:-14px; left:22px; color:#fff;
+    width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:15px; box-shadow:0 2px 6px rgba(0,0,0,0.15);
+  }
+  .step-num.user{background:var(--user-accent);}
+
+  .priority-high{color:#c0392b; font-weight:700;}
+  .priority-med{color:#d97b3f; font-weight:700;}
+  .priority-low{color:#6b8f5c; font-weight:700;}
+
+  .muted{color:var(--muted); font-size:14px;}
+  .back-to-top{display:inline-block; margin-top:10px; font-size:13px; color:var(--muted); text-decoration:none;}
+  .back-to-top:hover{text-decoration:underline;}
+
+  footer{text-align:center; padding:24px; color:var(--muted); font-size:12px; border-top:1px solid var(--border);}
+  hr.sep{border:none; border-top:2px dashed var(--border); margin:50px 0;}
+</style>
+</head>
+<body>
+
+<header class="hero" id="top">
+  <h1>📚 Documentation Complète</h1>
+  <p>Système de surveillance et traitement automatisé des messages SWIFT (RFI Sanctions) — Documentation technique, Guide utilisateur, Guide de sauvegarde</p>
+</header>
+
+<nav class="toc">
+  <a class="tech" href="#tech">🔧 Documentation technique</a>
+  <a class="user" href="#user">📘 Guide utilisateur</a>
+  <a class="backup" href="#backup">💾 Guide de sauvegarde</a>
+</nav>
+
+<main>
+
+<!-- ============ PARTIE 1 : DOCUMENTATION TECHNIQUE ============ -->
+<section class="part tech-block" id="tech">
+  <div class="part-header tech">
+    <h2>🔧 1. Documentation Technique</h2>
+    <p>Architecture, composants et fonctionnement interne du système</p>
+  </div>
+
+  <h3 class="tech" id="architecture">1.1 Architecture générale</h3>
+  <p>Le système repose sur deux blocs indépendants :</p>
+  <ol>
+    <li><strong>Le module de traitement</strong> : fonctions Python qui lisent les fichiers texte SWIFT (MTx99), extraient les champs pertinents, appliquent la détection de mots-clés RFI/Sanctions, et génèrent un classeur Excel à trois feuilles.</li>
+    <li><strong>Le module de surveillance</strong> : basé sur la librairie <code>watchdog</code>, il observe en continu l'arborescence <code>Data/&lt;mois&gt;/&lt;date&gt;/</code> et déclenche le traitement dès qu'un dossier contient exactement 2 fichiers <code>.txt</code> non encore traités.</li>
+  </ol>
+
+  <div class="flow">
+    <div><span>1</span>Dossier de date reçoit fichiers TXT</div>
+    <div><span>2</span>watchdog détecte l'événement</div>
+    <div><span>3</span>Vérification : 2 fichiers + non traité</div>
+    <div><span>4</span>Exécution du traitement SWIFT</div>
+    <div><span>5</span>Génération du fichier .xlsx</div>
+  </div>
+
+  <p class="muted">Structure attendue sur disque :</p>
+  <pre><code>Data/
+├── novembre/
+│   ├── 01112025/
+│   │   ├── xxx_recu.txt
+│   │   └── xxx_emi.txt
+│   └── 02112025/...
+└── décembre/
+    ├── 01122025/...
+    └── 31122025/...</code></pre>
+
+  <h3 class="tech" id="composants">1.2 Composants du traitement</h3>
+  <table>
+    <tr><th>Fonction</th><th>Rôle</th></tr>
+    <tr><td><code>remove_accent_from_text</code></td><td>Normalise le texte (suppression des accents) pour fiabiliser la recherche de mots-clés dans les noms de fichiers.</td></tr>
+    <tr><td><code>tokenize_by_alex</code></td><td>Découpe un texte en tokens (mots + ponctuation) via une expression régulière.</td></tr>
+    <tr><td><code>open_and_convert_file</code></td><td>Ouvre les fichiers correspondant à une clé ("recu" ou "emi"), concatène leur contenu et le scinde par message (séparateur <code>$</code>).</td></tr>
+    <tr><td><code>get_message_field</code></td><td>Extrait un champ SWIFT compris entre deux balises (ex : <code>:20:</code> → <code>:21:</code>).</td></tr>
+    <tr><td><code>get_BIC_code</code></td><td>Extrait le code BIC d'un identifiant via une expression régulière dédiée.</td></tr>
+    <tr><td><code>get_sender</code></td><td>Isole l'expéditeur et son code pays à partir du bloc d'en-tête.</td></tr>
+    <tr><td><code>get_date</code></td><td>Reconstitue la date du message à partir du <code>BLOCK_2</code>.</td></tr>
+    <tr><td><code>text_cleaner</code></td><td>Nettoie le champ 79 (texte libre) : minuscule, tokenisation, suppression des stop-words et des tokens non alphabétiques.</td></tr>
+    <tr><td><code>recherche_RFI_sanctions</code></td><td>Filtre les lignes dont le texte nettoyé contient au moins un des mots-clés recherchés.</td></tr>
+    <tr><td><code>remove_duplicates_message</code></td><td>Supprime les messages en double sur base de l'en-tête.</td></tr>
+    <tr><td><code>merge_sent_and_received_messages</code></td><td>Fait la jointure entre messages RFI reçus et messages émis correspondants (champ 20 ↔ champ 21).</td></tr>
+  </table>
+
+  <h4 class="tech">Handler de surveillance</h4>
+  <p>La classe <code>TxtFileHandler</code> (héritée de <code>FileSystemEventHandler</code>) réagit aux événements <code>on_created</code> et <code>on_modified</code>. Elle applique la règle de déclenchement :</p>
+  <pre><code>if len(fichiers_txt) == 2 and str(dossier) not in self.dossiers_traites:
+    # lancer le traitement
+    self.dossiers_traites.add(str(dossier))</code></pre>
+  <div class="callout tech">
+    <strong>Pourquoi un <code>set()</code> en mémoire ?</strong><br>
+    Il mémorise les dossiers déjà traités pendant l'exécution du script, afin d'éviter un retraitement à chaque modification détectée sur les mêmes fichiers. Cette mémoire est réinitialisée à chaque redémarrage du script.
+  </div>
+
+  <h3 class="tech" id="flux">1.3 Flux d'exécution détaillé</h3>
+  <ol>
+    <li>Démarrage du script → scan initial de tous les dossiers existants (traite ceux déjà complets).</li>
+    <li>L'<code>Observer</code> watchdog s'attache récursivement au dossier racine <code>Data/</code>.</li>
+    <li>À chaque écriture/copie de fichier <code>.txt</code>, un événement est émis.</li>
+    <li>Le handler attend <code>2</code> secondes (anti-fichier-incomplet), puis liste les <code>.txt</code> du dossier concerné.</li>
+    <li>Si exactement 2 fichiers et dossier non traité → appel de la chaîne de traitement (<code>open_and_convert_file</code> → extraction champs → nettoyage texte → filtre RFI → fusion → export Excel).</li>
+    <li>Le fichier <code>RFI_FAhd_&lt;date&gt;.xlsx</code> est écrit dans le même dossier, avec 3 feuilles : <code>MTx99_received</code>, <code>MTx99_sent</code>, <code>Merged_data</code>.</li>
+    <li>Le dossier est marqué comme traité pour la session en cours.</li>
+  </ol>
+
+  <h3 class="tech" id="config">1.4 Configuration</h3>
+  <table>
+    <tr><th>Paramètre</th><th>Emplacement</th><th>Description</th></tr>
+    <tr><td><code>DOSSIER</code></td><td>Bas du script</td><td>Chemin racine de l'arborescence <code>Data</code> à surveiller.</td></tr>
+    <tr><td><code>mots_cles_rfi.txt</code></td><td>Fichier externe</td><td>Liste des mots-clés RFI/Sanctions, un par ligne, lignes commençant par <code>#</code> ignorées.</td></tr>
+    <tr><td><code>date</code></td><td>Déduit automatiquement</td><td>Nom du sous-dossier de date, utilisé pour nommer le fichier Excel de sortie.</td></tr>
+  </table>
+  <div class="callout warn">
+    <strong>Point d'attention :</strong> le nom de chaque fichier TXT source doit contenir "recu" ou "emi" (insensible à la casse et aux accents) pour être correctement identifié par <code>open_and_convert_file</code>.
+  </div>
+
+  <h3 class="tech" id="dependances">1.5 Dépendances techniques</h3>
+  <table>
+    <tr><th>Librairie</th><th>Usage</th></tr>
+    <tr><td><code>pandas</code></td><td>Manipulation des données, écriture Excel</td></tr>
+    <tr><td><code>numpy</code></td><td>Support numérique (dépendance de pandas)</td></tr>
+    <tr><td><code>scikit-learn</code></td><td>Liste de stop-words anglais (<code>sklearn.feature_extraction.text</code>)</td></tr>
+    <tr><td><code>watchdog</code></td><td>Surveillance du système de fichiers en temps réel</td></tr>
+    <tr><td><code>openpyxl</code></td><td>Moteur d'écriture Excel utilisé en arrière-plan par <code>pd.ExcelWriter</code></td></tr>
+  </table>
+  <pre><code>pip install pandas numpy scikit-learn watchdog openpyxl</code></pre>
+
+  <h3 class="tech" id="extension">1.6 Points d'extension possibles</h3>
+  <ul>
+    <li><strong>Historique persistant</strong> : remplacer le <code>set()</code> en mémoire par un fichier JSON pour survivre aux redémarrages.</li>
+    <li><strong>Journalisation</strong> : ajouter des logs horodatés dans un fichier plutôt que sur la sortie standard.</li>
+    <li><strong>Notification</strong> : envoi d'un e-mail ou message Teams en cas de détection RFI positive.</li>
+    <li><strong>Tolérance aux erreurs</strong> : ré-essai automatique si un fichier est encore verrouillé par une copie en cours.</li>
+    <li><strong>Exécution en service</strong> : transformer le script en tâche planifiée (Task Scheduler) ou service Windows pour un démarrage automatique au boot.</li>
+  </ul>
+
+  <a class="back-to-top" href="#top">↑ Retour en haut</a>
+</section>
+
+<hr class="sep">
+
+<!-- ============ PARTIE 2 : GUIDE UTILISATEUR ============ -->
+<section class="part user-block" id="user">
+  <div class="part-header user">
+    <h2>📘 2. Guide Utilisateur</h2>
+    <p>Comment utiliser l'outil au quotidien — aucune connaissance en programmation nécessaire</p>
+  </div>
+
+  <h3 class="user" id="quoi">2.1 À quoi sert cet outil ?</h3>
+  <p>Chaque jour, des fichiers SWIFT (messages reçus et émis) arrivent dans des dossiers datés. Cet outil <strong>surveille automatiquement</strong> ces dossiers et, dès que les 2 fichiers nécessaires sont présents, génère automatiquement un fichier Excel contenant les messages liés aux mots-clés RFI/Sanctions — sans aucune action manuelle de votre part.</p>
+
+  <h3 class="user" id="preparation">2.2 Préparation (une seule fois)</h3>
+
+  <div class="step">
+    <div class="step-num user">1</div>
+    <h4>Installer Python et les librairies nécessaires</h4>
+    <p>Si ce n'est pas déjà fait, ouvrez une invite de commande et exécutez :</p>
+    <pre><code>pip install pandas numpy scikit-learn watchdog openpyxl</code></pre>
+  </div>
+
+  <div class="step">
+    <div class="step-num user">2</div>
+    <h4>Vérifier le fichier des mots-clés</h4>
+    <p>Le fichier <code>mots_cles_rfi.txt</code> contient la liste des mots à rechercher (un mot par ligne). Vous pouvez l'ouvrir avec le Bloc-notes et l'éditer librement :</p>
+    <pre><code># === SANCTIONS ===
+Sanc
+Embargo
+
+# === TERRORISME ===
+terrorism</code></pre>
+    <div class="callout user">Les lignes commençant par <code>#</code> sont des commentaires : elles servent à organiser la liste mais ne sont pas utilisées comme mots-clés.</div>
+  </div>
+
+  <div class="step">
+    <div class="step-num user">3</div>
+    <h4>Vérifier le chemin du dossier surveillé</h4>
+    <p>Assurez-vous que la variable <code>DOSSIER</code> dans le script pointe bien vers votre dossier <code>Data</code> (ex : <code>E:\Décembre 2025</code>).</p>
+  </div>
+
+  <h3 class="user" id="utilisation">2.3 Utilisation quotidienne</h3>
+
+  <div class="step">
+    <div class="step-num user">1</div>
+    <h4>Lancer la surveillance</h4>
+    <p>Double-cliquez sur le fichier <code>.bat</code> fourni, ou lancez manuellement :</p>
+    <pre><code>python surveillance_avec_mots_cles.py</code></pre>
+    <p>Une fenêtre s'ouvre et reste active — c'est normal, elle surveille en continu. <strong>Ne la fermez pas</strong> tant que vous voulez que la surveillance fonctionne.</p>
+  </div>
+
+  <div class="step">
+    <div class="step-num user">2</div>
+    <h4>Déposer les fichiers du jour</h4>
+    <p>Placez les 2 fichiers <code>.txt</code> du jour (celui contenant "recu" et celui contenant "emi" dans leur nom) dans le dossier de la date correspondante.</p>
+  </div>
+
+  <div class="step">
+    <div class="step-num user">3</div>
+    <h4>Laisser l'outil travailler</h4>
+    <p>Dès que les 2 fichiers sont détectés, un message s'affiche dans la fenêtre et le traitement démarre automatiquement. Quelques secondes plus tard, le fichier Excel apparaît dans le même dossier.</p>
+  </div>
+
+  <div class="step">
+    <div class="step-num user">4</div>
+    <h4>Récupérer le résultat</h4>
+    <p>Le fichier généré s'appelle <code>RFI_FAhd_&lt;date&gt;.xlsx</code> et contient 3 onglets :</p>
+    <table>
+      <tr><th>Onglet</th><th>Contenu</th></tr>
+      <tr><td>MTx99_received</td><td>Messages reçus correspondant aux mots-clés recherchés</td></tr>
+      <tr><td>MTx99_sent</td><td>Ensemble des messages émis (nettoyés)</td></tr>
+      <tr><td>Merged_data</td><td>Rapprochement entre messages reçus RFI et messages émis liés</td></tr>
+    </table>
+  </div>
+
+  <h3 class="user" id="arret">2.4 Arrêter la surveillance</h3>
+  <p>Cliquez dans la fenêtre du script puis appuyez sur <code>Ctrl + C</code>, ou fermez simplement la fenêtre.</p>
+
+  <h3 class="user" id="depannage">2.5 Dépannage rapide</h3>
+  <div class="callout warn">
+    <strong>Le fichier Excel n'est pas généré :</strong> vérifiez que les 2 fichiers TXT sont bien présents en même temps dans le dossier, et que leurs noms contiennent bien "recu" et "emi".
+  </div>
+  <div class="callout warn">
+    <strong>Un dossier n'est pas retraité alors que j'ai remplacé un fichier :</strong> c'est normal — un dossier déjà traité pendant la session en cours n'est pas retraité automatiquement. Redémarrez le script pour forcer un nouveau passage.
+  </div>
+  <div class="callout danger">
+    <strong>Message d'erreur au démarrage :</strong> vérifiez que le chemin du dossier <code>DOSSIER</code> existe bien et que les librairies Python sont installées (étape 1 de la préparation).
+  </div>
+
+  <a class="back-to-top" href="#top">↑ Retour en haut</a>
+</section>
+
+<hr class="sep">
+
+<!-- ============ PARTIE 3 : GUIDE BACKUP ============ -->
+<section class="part backup-block" id="backup">
+  <div class="part-header backup">
+    <h2>💾 3. Guide de Sauvegarde</h2>
+    <p>Que sauvegarder, à quelle fréquence, et comment restaurer le système</p>
+  </div>
+
+  <h3 class="backup" id="pourquoi-backup">3.1 Pourquoi sauvegarder ?</h3>
+  <p>Le système repose sur trois types d'éléments : le code, la configuration, et les données produites. Une panne disque, une suppression accidentelle ou un changement de poste ne doivent pas faire perdre l'historique des traitements RFI.</p>
+
+  <h3 class="backup" id="quoi-backup">3.2 Que sauvegarder</h3>
+  <table>
+    <tr><th>Élément</th><th>Fichier(s)</th><th>Priorité</th><th>Pourquoi</th></tr>
+    <tr>
+      <td>Script de traitement</td>
+      <td><code>surveillance_avec_mots_cles.py</code></td>
+      <td><span class="priority-high">Haute</span></td>
+      <td>Cœur du système ; sans lui, plus d'automatisation possible.</td>
+    </tr>
+    <tr>
+      <td>Fichier de mots-clés</td>
+      <td><code>mots_cles_rfi.txt</code></td>
+      <td><span class="priority-high">Haute</span></td>
+      <td>Contient la liste métier des ~200 mots-clés RFI/Sanctions ; leur perte oblige à tout reconstituer.</td>
+    </tr>
+    <tr>
+      <td>Script de lancement</td>
+      <td><code>lancer_surveillance_swift.bat</code></td>
+      <td><span class="priority-med">Moyenne</span></td>
+      <td>Facilite le redémarrage, mais reconstituable rapidement.</td>
+    </tr>
+    <tr>
+      <td>Fichiers TXT sources</td>
+      <td><code>Data/&lt;mois&gt;/&lt;date&gt;/*_recu.txt, *_emi.txt</code></td>
+      <td><span class="priority-high">Haute</span></td>
+      <td>Données brutes originales ; nécessaires pour tout retraitement futur.</td>
+    </tr>
+    <tr>
+      <td>Fichiers Excel générés</td>
+      <td><code>Data/&lt;mois&gt;/&lt;date&gt;/RFI_FAhd_*.xlsx</code></td>
+      <td><span class="priority-med">Moyenne</span></td>
+      <td>Régénérables à partir des TXT sources, mais utile de garder l'historique produit sans avoir à relancer.</td>
+    </tr>
+    <tr>
+      <td>Documentation</td>
+      <td>Ce document HTML</td>
+      <td><span class="priority-low">Basse</span></td>
+      <td>Utile pour la continuité si une autre personne reprend le système.</td>
+    </tr>
+  </table>
+
+  <h3 class="backup" id="frequence">3.3 Fréquence recommandée</h3>
+  <table>
+    <tr><th>Élément</th><th>Fréquence</th></tr>
+    <tr><td>Script + mots-clés + documentation</td><td>À chaque modification (versionnage)</td></tr>
+    <tr><td>Fichiers TXT sources et Excel générés</td><td>Quotidienne, à la fin de journée de traitement</td></tr>
+  </table>
+
+  <h3 class="backup" id="copie-manuelle">3.4 Méthode simple : copie manuelle</h3>
+  <p>La méthode la plus directe consiste à copier périodiquement le dossier complet vers un emplacement de sauvegarde (disque réseau, disque externe) :</p>
+  <pre><code>xcopy "E:\Décembre 2025" "\\ServeurBackup\SWIFT\Décembre 2025" /E /I /Y</code></pre>
+  <p class="callout backup">La commande <code>xcopy</code> avec <code>/E</code> copie tous les sous-dossiers, <code>/I</code> évite les questions de confirmation, <code>/Y</code> écrase sans demander.</p>
+
+  <h4 class="backup">Sauvegarde automatique quotidienne (Windows)</h4>
+  <p>Créez une tâche planifiée qui exécute chaque soir un script <code>.bat</code> :</p>
+  <pre><code>@echo off
+set DATE_JOUR=%date:~-4,4%%date:~-7,2%%date:~-10,2%
+xcopy "E:\Décembre 2025" "D:\Backup_SWIFT\%DATE_JOUR%" /E /I /Y
+echo Sauvegarde terminée le %DATE_JOUR% >> D:\Backup_SWIFT\journal_backup.log</code></pre>
+
+  <h3 class="backup" id="archive">3.5 Méthode alternative : archive compressée</h3>
+  <p>Pour limiter l'espace disque, une archive <code>.zip</code> horodatée peut être créée avec PowerShell :</p>
+  <pre><code>Compress-Archive -Path "E:\Décembre 2025" -DestinationPath "D:\Backup_SWIFT\Decembre2025_$(Get-Date -Format yyyyMMdd).zip"</code></pre>
+
+  <h3 class="backup" id="bonnes-pratiques">3.6 Bonnes pratiques</h3>
+  <ul>
+    <li><strong>Règle 3-2-1</strong> : conserver au moins 3 copies des données, sur 2 supports différents, dont 1 hors site (serveur réseau ou cloud d'entreprise).</li>
+    <li><strong>Ne jamais sauvegarder par-dessus la même copie</strong> : privilégier des dossiers ou archives horodatés pour pouvoir revenir en arrière.</li>
+    <li><strong>Tester la restauration</strong> régulièrement, pas seulement la sauvegarde.</li>
+    <li><strong>Protéger l'accès</strong> aux sauvegardes contenant des données SWIFT, données sensibles à caractère bancaire.</li>
+  </ul>
+
+  <div class="callout danger">
+    <strong>Sensibilité des données :</strong> les fichiers SWIFT et les fichiers Excel RFI contiennent des informations financières et potentiellement liées à des sanctions. Les sauvegardes doivent être stockées sur des emplacements conformes à la politique de sécurité de votre établissement, avec accès restreint.
+  </div>
+
+  <h3 class="backup" id="restauration">3.7 Procédure de restauration</h3>
+  <ol>
+    <li>Identifier la sauvegarde la plus récente et cohérente (vérifier la date dans le nom du dossier/archive).</li>
+    <li>Copier (ou extraire) le contenu vers l'emplacement de travail habituel (<code>E:\Décembre 2025</code> ou équivalent).</li>
+    <li>Vérifier la présence du script <code>surveillance_avec_mots_cles.py</code> et de <code>mots_cles_rfi.txt</code>.</li>
+    <li>Relancer le script de surveillance pour reprendre l'automatisation normalement.</li>
+  </ol>
+
+  <a class="back-to-top" href="#top">↑ Retour en haut</a>
+</section>
+
+</main>
+
+<footer>Documentation complète — Système de surveillance SWIFT automatisée</footer>
+</body>
+</html>
